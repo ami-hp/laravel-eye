@@ -1,0 +1,37 @@
+{
+    "name": "ami-hp/laravel-eye",
+    "type": "package",
+    "description": "Recording Site Views with Cache and CronJob",
+    "keywords": [
+        "ami","package","eye","visitors","visit","siteViews","view", "cache","cronjob"
+    ],
+    "authors": [
+        {
+            "name": "Ahmadreza Nozaeem",
+            "role": "Developer",
+            "email": "aminz.uiux@gmail.com",
+            "homepage": "https://github.com/ami-hp"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Ami\\Eye\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ami\\eye\\src\\EyeServiceProvider"
+            ],
+            "aliases": {
+                "Eye": "Ami\\Eye\\Facade"
+            }
+        }
+    },
+    "require": {
+        "illuminate/support": "^5.0|^6.0|^7.0|^8.0",
+        "illuminate/database": "^5.0|^6.0|^7.0|^8.0",
+        "nesbot/carbon": "^2.0"
+    }
+}
