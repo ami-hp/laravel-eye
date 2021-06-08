@@ -28,7 +28,7 @@ class DailyViews extends Command
      *
      * @var string
      */
-    protected $description = 'Insert Views in Every Page Recorded by Cache, Then Clear Cache';
+    protected $description = 'Insert Views in Every Page Recorded by Cache, Then Clear Cache . Example: in Cpanel >> CronJobs >>  /usr/local/bin/php /home/user-name/project-path/artisan eye:record > /dev/null 2>&1';
 
     /**
      * Create a new command instance.
