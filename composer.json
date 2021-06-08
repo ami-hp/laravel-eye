@@ -3,7 +3,7 @@
     "type": "package",
     "description": "Recording Site Views with Cache and CronJob",
     "keywords": [
-        "ami","package","eye","visitors","visit","siteViews","view", "cache","cronjob"
+        "ami","ami-hp","package","laravel","laravel-eye","eye","visitors","visit","siteViews","view", "cache","cronjob"
     ],
     "authors": [
         {
@@ -22,7 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "ami\\eye\\src\\EyeServiceProvider"
+                "Ami\\Eye\\EyeServiceProvider"
             ],
             "aliases": {
                 "Eye": "Ami\\Eye\\Facade"
