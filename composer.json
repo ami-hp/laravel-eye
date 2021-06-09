@@ -22,7 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Ami\\Eye\\EyeServiceProvider"
+                "Ami\\Eye\\Providers\\EyeServiceProvider"
             ],
             "aliases": {
                 "Eye": "Ami\\Eye\\Facade"
