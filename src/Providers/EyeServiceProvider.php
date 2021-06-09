@@ -18,7 +18,7 @@ class EyeServiceProvider extends ServiceProvider
             return new EyeService();
         });
 
-        $this->mergeConfigFrom('../' . __DIR__ . '/config/eye.php' , 'eye');
+        $this->mergeConfigFrom(__DIR__ . '../config/eye.php' , 'eye');
     }
 
     /**
@@ -29,11 +29,11 @@ class EyeServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            '../' . __DIR__ . '/database/migrations' => database_path('/migrations'),
+            __DIR__ . '../database/migrations' => database_path('/migrations'),
         ] , 'migration');
 
         $this->publishes([
-            '../' . __DIR__ . '/config/eye.php' => config_path('/eye.php'),
+            __DIR__ . '../config/eye.php' => config_path('/eye.php'),
         ] , 'config');
     }
 }
