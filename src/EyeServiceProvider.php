@@ -1,6 +1,6 @@
 <?php
 
-namespace Ami\Eye\Providers;
+namespace Ami\Eye;
 
 use Ami\Eye\Services\EyeService;
 use Illuminate\Support\ServiceProvider;
