@@ -5,6 +5,7 @@
     "keywords": [
         "ami","ami-hp","package","laravel","laravel-eye","eye","visitors","visit","siteViews","view", "cache","cronjob"
     ],
+    "homepage": "https://github.com/ami-hp/laravel-eye",
     "authors": [
         {
             "name": "Ahmadreza Nozaeem",
@@ -30,9 +31,7 @@
         }
     },
     "require": {
-        "php": "^5.5|^6.0|^7.0|^8.0",
-        "illuminate/support": "^5.0|^6.0|^7.0|^8.0",
-        "illuminate/database": "^5.0|^6.0|^7.0|^8.0",
-        "nesbot/carbon": "^2.0"
+        "php": "^7.2|^8.0",
+        "laravel/framework": "^7.0|^8.0"
     }
 }
