@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Psr\SimpleCache\InvalidArgumentException;
+use stdClass;
 
 class EyeService
 {
+    private $command = 'eye:record';
     public
         $ip,
         $class,
@@ -35,6 +37,81 @@ class EyeService
         $this->time = Carbon::now();
         $this->count = 0;
         $this->browser = $_SERVER['HTTP_USER_AGENT'] ?? NULL;
+    }
+
+
+
+    /**
+     * Use This in Every Page that You Want to Set Cache
+     * returns count of users and count of load in page
+     * @param string $cache_label
+     * @param int $id
+     * @return stdClass
+     */
+    public function setAndGetViews(string $cache_label, $id = 0)
+    {
+        $views = new stdClass();
+        $page_views = $this->set_cache_views($cache_label, $id);
+        $views->users = $page_views->count_users();
+        $views->seen = $page_views->count_views();
+        return $views;
+    }
+
+    /**
+     * @return false|string
+     */
+    public function readyTotalChart($type = "total", $json = true)
+    {
+
+        $view = $this->db_total();
+
+        if (gettype($type) == 'array') {
+            $view = $view->whereIn('type', $type);
+        } elseif (gettype($type) == 'string') {
+            $view = $view->where('type', $type);
+        }
+
+
+        $grouped = $view->orderBy('id', 'desc')->get();
+
+
+        //  Grouping by Recorded Time (Created_at)
+        $views = $this->groupByTime($grouped);
+
+
+        if ($json === true)
+            $views = json_encode($views);
+
+
+        return $views;
+    }
+
+    /**
+     * @param $type
+     * @param int $page_id
+     * @param bool $json
+     * @return array|false|string
+     */
+    public function readyDetailsChart($type, $page_id = 0, $json = true)
+    {
+
+        $view = $this->db_details();
+
+        if (gettype($type) == 'array') {
+            $view = $view->whereIn('page_type', $type);
+        } elseif (gettype($type) == 'string') {
+            $view = $view->where('page_type', $type)->where('page_id', $page_id);
+        }
+
+        $grouped = $view->orderBy('id', 'desc')->get();
+
+        //  Grouping by Recorded Time (Created_at)
+        $views = $this->groupByTime($grouped);
+
+        if ($json === true)
+            $views = json_encode($views);
+
+        return $views;
     }
 
 
@@ -75,7 +152,7 @@ class EyeService
      * @return EyeService
      * @throws InvalidArgumentException
      */
-    public function set_cache_views(string $cache_label, $id = 0)
+    protected function set_cache_views(string $cache_label, $id = 0)
     {
         try{
             $this->class = $this->type($cache_label);
@@ -93,7 +170,8 @@ class EyeService
                     $this->count = $page_cache['count'];
                     unset($page_cache);
                 }
-            } else {
+            }
+            else {
                 $page_views[$this->ip] = [];
             }
 
@@ -118,7 +196,7 @@ class EyeService
      * @return EyeService
      * @throws Exception
      */
-    public function getCaches(array $type_names = null)
+    protected function getCaches(array $type_names = null)
     {
         try{
             if (!$type_names)
@@ -142,7 +220,7 @@ class EyeService
     /**
      * @return array
      */
-    public function getPages()
+    protected function getPages()
     {
         return array_keys(config('eye.cache_types'));
     }
@@ -151,7 +229,7 @@ class EyeService
      * Combine $cache_name and $types
      * @return array
      */
-    public function getCacheNames()
+    protected function getCacheNames()
     {
         try{
             $cache_names = [];
@@ -168,7 +246,7 @@ class EyeService
     /**
      * @return mixed
      */
-    public function count_users()
+    protected function count_users()
     {
         return $this->collect->count();
     }
@@ -176,7 +254,7 @@ class EyeService
     /**
      * @return float|int
      */
-    public function count_views()
+    protected function count_views()
     {
         return $this->collect->collapse()->sum('count');
     }
@@ -186,7 +264,7 @@ class EyeService
      * @param null $getTypes_key
      * @return string
      */
-    public function type($getTypes_key = null)
+    protected function type($getTypes_key = null)
     {
         $key = $getTypes_key;
         $types = config('eye.cache_types');
@@ -201,7 +279,7 @@ class EyeService
      * Get Property Getter
      * @return mixed
      */
-    public function get()
+    protected function get()
     {
         return $this->get;
     }
@@ -211,7 +289,7 @@ class EyeService
      * @return array
      * @throws Exception
      */
-    public function prepare_for_database()
+    protected function prepare_for_database()
     {
         try{
             $time = Carbon::now();
@@ -384,7 +462,7 @@ class EyeService
      * @param string $type
      * @return int|string|null
      */
-    public function findGroupParent(string $type)
+    protected function findGroupParent(string $type)
     {
         foreach (config('eye.type_groups') as $key => $group) {
 
@@ -395,66 +473,9 @@ class EyeService
     }
 
     /**
-     * @return false|string
-     */
-    public function readyTotalChart($type = "total", $json = true)
-    {
-
-        $view = $this->db_total();
-
-        if (gettype($type) == 'array') {
-            $view = $view->whereIn('type', $type);
-        } elseif (gettype($type) == 'string') {
-            $view = $view->where('type', $type);
-        }
-
-
-        $grouped = $view->orderBy('id', 'desc')->get();
-
-
-        //  Grouping by Recorded Time (Created_at)
-        $views = $this->groupByTime($grouped);
-
-
-        if ($json === true)
-            $views = json_encode($views);
-
-
-        return $views;
-    }
-
-    /**
-     * @param $type
-     * @param int $page_id
-     * @param bool $json
-     * @return array|false|string
-     */
-    public function readyDetailsChart($type, $page_id = 0, $json = true)
-    {
-
-        $view = $this->db_details();
-
-        if (gettype($type) == 'array') {
-            $view = $view->whereIn('page_type', $type);
-        } elseif (gettype($type) == 'string') {
-            $view = $view->where('page_type', $type)->where('page_id', $page_id);
-        }
-
-        $grouped = $view->orderBy('id', 'desc')->get();
-
-        //  Grouping by Recorded Time (Created_at)
-        $views = $this->groupByTime($grouped);
-
-        if ($json === true)
-            $views = json_encode($views);
-
-        return $views;
-    }
-
-    /**
      * @return Builder
      */
-    public function db_total()
+    protected function db_total()
     {
         return DB::table(config('eye.tables.total'));
     }
@@ -462,7 +483,7 @@ class EyeService
     /**
      * @return Builder
      */
-    public function db_details()
+    protected function db_details()
     {
         return DB::table(config('eye.tables.details'));
     }
@@ -471,7 +492,7 @@ class EyeService
      * @param $grouped
      * @return array
      */
-    public function groupByTime($grouped)
+    protected function groupByTime($grouped)
     {
 
         $grouped = $grouped->groupBy(function ($date) {
@@ -543,6 +564,11 @@ class EyeService
 
         Log::info('[---------- CRON JOB IS FINISHED ----------]');
         echo "done";
+    }
+
+    public function getCommand()
+    {
+        return $this->command;
     }
 
 }
