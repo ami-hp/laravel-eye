@@ -1,6 +1,6 @@
 <?php
 
-namespace Ami\Eye\Console\Commands;
+namespace App\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
