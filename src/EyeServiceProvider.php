@@ -30,14 +30,14 @@ class EyeServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/database/migrations' => database_path('/migrations'),
-        ] , 'migration');
+        ] , 'eye-migration');
 
         $this->publishes([
             __DIR__ . '/config/eye.php' => config_path('/eye.php'),
-        ] , 'config');
+        ] , 'eye-config');
 
         $this->publishes([
             __DIR__ . '/Console/Commands/DailyViews.php' => app_path('/Console/Commands/DailyViews.php'),
-        ] , 'command');
+        ] , 'eye-command');
     }
 }
