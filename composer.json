@@ -5,6 +5,7 @@
     "keywords": [
         "ami","ami-hp","package","laravel","laravel-eye","eye","visitors","visit","siteViews","view", "cache","cronjob"
     ],
+    "license": "MIT",
     "homepage": "https://github.com/ami-hp/laravel-eye",
     "authors": [
         {
