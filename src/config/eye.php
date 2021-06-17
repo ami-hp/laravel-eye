@@ -15,7 +15,7 @@ return [
      ** cache_name => "page_type"
      *
      *? ==== Where To Use CacheName ==== **
-     ** Eye::set_cache_views( cache_name , id = 0);
+     ** Eye::setAndGetViews( cache_name , id = 0);
      *
      *? ==== Where To Use PageType ==== **
      ** in Database

@@ -16,7 +16,7 @@ use stdClass;
 class EyeService
 {
     private $command = 'eye:record';
-    
+
     public
         $ip,
         $class,
@@ -49,10 +49,10 @@ class EyeService
      * @param int $id
      * @return stdClass
      */
-    public function setAndGetViews(string $cache_label, $id = 0)
+    public function setAndGetViews(string $cache_name, $id = 0)
     {
         $views = new stdClass();
-        $page_views = $this->set_cache_views($cache_label, $id);
+        $page_views = $this->set_cache_views($cache_name, $id);
         $views->users = $page_views->count_users();
         $views->seen = $page_views->count_views();
         return $views;
@@ -155,6 +155,21 @@ class EyeService
         return $this->command;
     }
 
+
+
+/**
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ * !----------------------------------------------------------------------------------
+ */
+
+
+
     /**
      * @param $ip
      * @param $browser
@@ -164,7 +179,7 @@ class EyeService
      * @param int $count
      * @return array
      */
-    protected function setView_array($ip, $browser, $page_id, $class, $time, $count = 0)
+    private function setView_array($ip, $browser, $page_id, $class, $time, $count = 0)
     {
         return [
             'ip' => $ip,
@@ -180,7 +195,7 @@ class EyeService
      * @param $name
      * @return mixed|string
      */
-    protected function searchType($name)
+    private function searchType($name)
     {
         return ($this->getTypes())[$name];
     }
@@ -192,7 +207,7 @@ class EyeService
      * @return EyeService
      * @throws InvalidArgumentException
      */
-    protected function set_cache_views(string $cache_label, $id = 0)
+    private function set_cache_views(string $cache_label, $id = 0)
     {
         try{
             $this->class = $this->type($cache_label);
@@ -236,7 +251,7 @@ class EyeService
      * @return EyeService
      * @throws Exception
      */
-    protected function getCaches(array $type_names = null)
+    private function getCaches(array $type_names = null)
     {
         try{
             if (!$type_names)
@@ -260,7 +275,7 @@ class EyeService
     /**
      * @return array
      */
-    protected function getPages()
+    private function getPages()
     {
         return array_keys(config('eye.cache_types'));
     }
@@ -269,7 +284,7 @@ class EyeService
      * Combine $cache_name and $types
      * @return array
      */
-    protected function getCacheNames()
+    private function getCacheNames()
     {
         try{
             $cache_names = [];
@@ -286,7 +301,7 @@ class EyeService
     /**
      * @return mixed
      */
-    protected function count_users()
+    private function count_users()
     {
         return $this->collect->count();
     }
@@ -294,7 +309,7 @@ class EyeService
     /**
      * @return float|int
      */
-    protected function count_views()
+    private function count_views()
     {
         return $this->collect->collapse()->sum('count');
     }
@@ -304,7 +319,7 @@ class EyeService
      * @param null $getTypes_key
      * @return string
      */
-    protected function type($getTypes_key = null)
+    private function type($getTypes_key = null)
     {
         $key = $getTypes_key;
         $types = config('eye.cache_types');
@@ -319,7 +334,7 @@ class EyeService
      * Get Property Getter
      * @return mixed
      */
-    protected function get()
+    private function get()
     {
         return $this->get;
     }
@@ -329,7 +344,7 @@ class EyeService
      * @return array
      * @throws Exception
      */
-    protected function prepare_for_database()
+    private function prepare_for_database()
     {
         try{
             $time = Carbon::now();
@@ -502,7 +517,7 @@ class EyeService
      * @param string $type
      * @return int|string|null
      */
-    protected function findGroupParent(string $type)
+    private function findGroupParent(string $type)
     {
         foreach (config('eye.type_groups') as $key => $group) {
 
@@ -515,7 +530,7 @@ class EyeService
     /**
      * @return Builder
      */
-    protected function db_total()
+    private function db_total()
     {
         return DB::table(config('eye.tables.total'));
     }
@@ -523,7 +538,7 @@ class EyeService
     /**
      * @return Builder
      */
-    protected function db_details()
+    private function db_details()
     {
         return DB::table(config('eye.tables.details'));
     }
@@ -532,7 +547,7 @@ class EyeService
      * @param $grouped
      * @return array
      */
-    protected function groupByTime($grouped)
+    private function groupByTime($grouped)
     {
 
         $grouped = $grouped->groupBy(function ($date) {
