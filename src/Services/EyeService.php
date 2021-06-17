@@ -16,6 +16,7 @@ use stdClass;
 class EyeService
 {
     private $command = 'eye:record';
+    
     public
         $ip,
         $class,
@@ -114,6 +115,45 @@ class EyeService
         return $views;
     }
 
+    
+    /**
+     * Record in Database with CronJob >> app\Console\Commands\DailyViews
+     */
+    public function record()
+    {
+        Log::info('[---------- CRON JOB IS STARTED ----------]');
+
+
+        try {
+            if ($this->getCaches()->get()) {
+
+                $prepared = $this->prepare_for_database();
+
+                if (isset($prepared['total'])) {
+                    Log::info('** Total Visits Has Been Set **');
+                    $this->db_total()->insert($prepared['total']);
+                }
+
+                if (isset($prepared['detail'])) {
+                    Log::info('** Detail Visits Has Been Set **');
+                    $this->db_details()->insert($prepared['detail']);
+                }
+                $cache_names = $this->getCacheNames();
+                $this->cacheForget($cache_names);
+            }
+        }
+        catch (Exception $e) {
+            Log::info($e->getMessage());
+        }
+
+        Log::info('[---------- CRON JOB IS FINISHED ----------]');
+        echo "done";
+    }
+
+    public function getCommand()
+    {
+        return $this->command;
+    }
 
     /**
      * @param $ip
@@ -532,43 +572,5 @@ class EyeService
 
     }
 
-    /**
-     * Record in Database with CronJob >> app\Console\Commands\DailyViews
-     */
-    public function record()
-    {
-        Log::info('[---------- CRON JOB IS STARTED ----------]');
-
-
-        try {
-            if ($this->getCaches()->get()) {
-
-                $prepared = $this->prepare_for_database();
-
-                if (isset($prepared['total'])) {
-                    Log::info('** Total Visits Has Been Set **');
-                    $this->db_total()->insert($prepared['total']);
-                }
-
-                if (isset($prepared['detail'])) {
-                    Log::info('** Detail Visits Has Been Set **');
-                    $this->db_details()->insert($prepared['detail']);
-                }
-                $cache_names = $this->getCacheNames();
-                $this->cacheForget($cache_names);
-            }
-        }
-        catch (Exception $e) {
-            Log::info($e->getMessage());
-        }
-
-        Log::info('[---------- CRON JOB IS FINISHED ----------]');
-        echo "done";
-    }
-
-    public function getCommand()
-    {
-        return $this->command;
-    }
 
 }
