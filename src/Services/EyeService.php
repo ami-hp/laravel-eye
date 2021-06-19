@@ -140,14 +140,19 @@ class EyeService
                 }
                 $cache_names = $this->getCacheNames();
                 $this->cacheForget($cache_names);
+                echo "done";
+            }
+            else{
+                echo "no cache";
             }
         }
         catch (Exception $e) {
             Log::info($e->getMessage());
+            echo $e->getMessage();
         }
 
         Log::info('[---------- CRON JOB IS FINISHED ----------]');
-        echo "done";
+        
     }
 
     public function getCommand()
