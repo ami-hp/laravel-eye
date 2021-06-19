@@ -9,13 +9,11 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class Eye
  * @package App\Services
- * @property static command
  * @method static record()
  * @method static prepare_for_database()
  * @method static setAndGetViews(string $cache_name , int $id = 0)
  * @method static readyTotalChart(string|array $type = "total" , Boolean $json = true)
  * @method static readyDetailsChart(string|array $type = "total" , int|string $page_id = 0 , Boolean $json = true)
- * @method static getCommand()
  */
 class Eye extends Facade
 {

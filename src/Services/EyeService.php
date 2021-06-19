@@ -15,7 +15,6 @@ use stdClass;
 
 class EyeService
 {
-    private $command = 'eye:record';
 
     public
         $ip,
@@ -153,11 +152,6 @@ class EyeService
 
         Log::info('[---------- CRON JOB IS FINISHED ----------]');
         
-    }
-
-    public function getCommand()
-    {
-        return $this->command;
     }
 
     /**
