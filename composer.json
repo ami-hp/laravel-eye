@@ -34,5 +34,8 @@
     "require": {
         "php": "^7.2|^8.0",
         "laravel/framework": "^7.0|^8.0"
+    },
+    "suggest": {
+        "morilog/jalali": "Adds Jalili (Persian) Calendar"
     }
 }

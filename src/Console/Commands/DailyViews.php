@@ -50,6 +50,7 @@ class DailyViews extends Command
      */
     public function handle()
     {
-        \Ami\Eye\Facade\Eye::record();
+        if(class_exists("\Ami\Eye\Facade\Eye"))
+            \Ami\Eye\Facade\Eye::record();
     }
 }

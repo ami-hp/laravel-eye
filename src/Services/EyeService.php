@@ -61,23 +61,23 @@ class EyeService
     /**
      * @return false|string
      */
-    public function readyTotalChart($type = "total", $json = true)
+    public function readyTotalChart($type = "total" ,$timeType = "gregorian" , $json = true)
     {
 
         $view = $this->db_total();
 
-        if (gettype($type) == 'array') {
+        if (gettype($type) == 'array')
             $view = $view->whereIn('type', $type);
-        } elseif (gettype($type) == 'string') {
+        elseif (gettype($type) == 'string')
             $view = $view->where('type', $type);
-        }
+
 
 
         $grouped = $view->orderBy('id', 'desc')->get();
 
 
         //  Grouping by Recorded Time (Created_at)
-        $views = $this->groupByTime($grouped);
+        $views = $this->groupByTime($grouped , $timeType);
 
 
         if ($json === true)
@@ -93,7 +93,7 @@ class EyeService
      * @param bool $json
      * @return array|false|string
      */
-    public function readyDetailsChart($type, $page_id = 0, $json = true)
+    public function readyDetailsChart($type, $page_id = 0 ,$timeType = "gregorian" , $json = true)
     {
 
         $view = $this->db_details();
@@ -107,7 +107,7 @@ class EyeService
         $grouped = $view->orderBy('id', 'desc')->get();
 
         //  Grouping by Recorded Time (Created_at)
-        $views = $this->groupByTime($grouped);
+        $views = $this->groupByTime($grouped , $timeType);
 
         if ($json === true)
             $views = json_encode($views);
@@ -553,6 +553,35 @@ class EyeService
         $total_views = [];
         foreach ($grouped as $key => $value) {
 
+            private function groupByTime($grouped , $timeType = "gregorian")
+    {
+
+        $grouped = $grouped->groupBy(function ($date) {
+            return \Illuminate\Support\Carbon::parse($date->created_at)->format('Y/m/d'); // grouping by years
+        })->take(30);
+        $total_views = [];
+
+        foreach ($grouped as $key => $value) {
+            if($timeType == "gregorian"){
+                $time = Carbon::parse($key)->format('%d %B');
+            }
+            elseif($timeType == "jalili"){
+                $time = jdate($key)->format('%d %B');
+            }
+
+            /**
+             * Total Views of Types
+             */
+            $total_views[] = [
+                'user_count' => $value->sum('user_count'),
+                'page_count' => $value->sum('page_count'),
+                'date' => time,
+            ];
+
+        }
+        return $total_views;
+
+    }
             /**
              * Total Views of Types
              */
