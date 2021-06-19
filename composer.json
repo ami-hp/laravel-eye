@@ -36,6 +36,7 @@
         "laravel/framework": "^7.0|^8.0"
     },
     "suggest": {
-        "morilog/jalali": "Adds Jalili (Persian) Calendar"
+        "morilog/jalali": "Adds Jalili (Persian) Calendar",
+        "chartjs/Chart.js": "Adds Graphics to Statics"
     }
 }
