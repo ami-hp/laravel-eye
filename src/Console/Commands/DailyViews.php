@@ -23,7 +23,7 @@ class DailyViews extends Command
      * !===================================================
      * ?----------------------------------------------------
      */
-    protected $signature;
+    protected $signature = "eye:record";
 
     /**
      * The console command description.
@@ -39,7 +39,6 @@ class DailyViews extends Command
      */
     public function __construct()
     {
-        $this->signature = \Ami\Eye\Facade\Eye::getCommand();
         parent::__construct();
     }
 
