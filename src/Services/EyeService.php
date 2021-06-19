@@ -34,7 +34,7 @@ class EyeService
      */
     public function __construct()
     {
-        $this->ip = request()->ip() . rand(5, 8);
+        $this->ip = request()->ip();
         $this->time = Carbon::now();
         $this->count = 0;
         $this->browser = $_SERVER['HTTP_USER_AGENT'] ?? NULL;
