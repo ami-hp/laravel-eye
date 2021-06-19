@@ -155,6 +155,176 @@ class EyeService
         return $this->command;
     }
 
+    /**
+     ** Returns two arrays for inserting into DB_Tables by CronJob
+     * @return array
+     * @throws Exception
+     */
+    public function prepare_for_database()
+    {
+        try{
+            $time = Carbon::now();
+
+
+            $total_views = $detailed_views = $total = [];
+            $groupPeople = collect([]);
+            $caches = $this->getCaches()->eye_cache;
+
+            if ($caches) {
+
+
+                $total_page_count = $caches->sum(function ($ids) {
+                    return $ids->sum(function ($value) {
+                        return collect($value)->sum('count');
+                    });
+                });
+
+                foreach ($caches as $type => $getCache) {
+
+                    // cache name => ips => ids => details
+
+                    ///////===========---------------Detailed-Views
+                    /**
+                     * IDs of pages
+                     */
+                    $cache_ids = $getCache->map(function ($ids) {
+                        return array_keys($ids);
+                    })->collapse()->countBy();
+
+
+                    foreach ($getCache->collapse()->groupBy('page_id') as $id => $details) {
+                        $detailed_views[] = [
+                            'page_id' => $id,
+                            'page_type' => $this->type($type),
+                            'user_count' => $cache_ids[$id],
+                            'page_count' => $details->sum('count'),
+                            'created_at' => $time,
+                        ];
+                    }
+
+                    $groupType = $this->findGroupParent($type);
+                    ///////===========---------------Total-Views
+                    $typeCount = [];
+
+                    foreach ($getCache as $ip => $ids) {
+
+                        $count = collect($ids)->sum('count');
+
+                        $typeCount[] = $count;
+
+
+                        if ($groupType) {
+
+                            if (isset($groupPeople[$groupType])) {
+
+                                if (isset($groupPeople[$groupType]["page_count"])) {
+
+                                    $page_count = collect($groupPeople[$groupType])["page_count"];
+                                    $page_count += $count;
+                                    $groupPeople[$groupType] = ["page_count" => $page_count];
+
+                                }
+                                else {
+
+
+                                    $groupPeople[$groupType] = collect($groupPeople[$groupType]);
+                                    $groupPeople[$groupType]->page_count = $count;
+
+                                }
+
+                            } else {
+
+                                $groupPeople[$groupType] = ["page_count" => $count];
+
+                            }
+
+                        }
+
+
+                        $total[] = [
+                            $ip => $count,
+                        ];
+
+                    }
+
+
+
+
+                    /**
+                     * Visits of Each Cache
+                     */
+                    $total_views[] = [
+                        'type' => $type,
+                        'user_count' => $getCache->count(),
+                        'page_count' => array_sum($typeCount),
+                        'created_at' => $time,
+                    ];
+
+
+                    $groupType = $this->findGroupParent($type);
+                    if (isset($merged[$groupType])) {
+                        $merged[$groupType] = $merged[$groupType]->merge($getCache);
+                    } else {
+                        $merged[$groupType] = $getCache;
+                    }
+
+                }
+
+                $groupedCount = collect($merged)->map(function ($value, $key) use ($groupPeople , $time) {
+                    return [
+                        'type'       => $key,
+                        'user_count' => $value->unique()->count(),
+                        'page_count' => $groupPeople[$key]['page_count'],
+                        'created_at' => $time,
+                    ];
+                })->values()->toArray();
+
+
+
+                /**
+                 * All Visited People
+                 */
+                $people = [];
+                foreach ($total as $detail) {
+                    $ip = key($detail);
+                    if (!isset($people[$ip]))
+                        $people[$ip] = $detail[$ip];
+                    else
+                        $people[$ip] += $detail[$ip];
+                }
+
+                /**
+                 * All Visits of All Page Combined
+                 */
+                $total_page_count = $caches->sum(function ($ids) {
+                    return $ids->sum(function ($value) {
+                        return collect($value)->sum('count');
+                    });
+                });
+
+                $total_users = [
+                    'type' => 'total',
+                    'user_count' => count($people),
+                    'page_count' => $total_page_count, //array_sum($people)
+                    'created_at' => $time,
+                ];
+
+                if (isset($total_views)) {
+                    array_push($total_views, $total_users);
+                    $total_views = array_merge($total_views, $groupedCount);
+                }
+
+            }
+
+            return [
+                'total' => $total_views ?? [],
+                'detail' => $detailed_views ?? [],
+            ];
+        }
+        catch (Exception $e){
+            Log::info($e->getMessage());
+        }
+    }
 
 
 /**
@@ -339,179 +509,6 @@ class EyeService
         return $this->get;
     }
 
-    /**
-     ** Returns two arrays for inserting into DB_Tables by CronJob
-     * @return array
-     * @throws Exception
-     */
-    private function prepare_for_database()
-    {
-        try{
-            $time = Carbon::now();
-
-
-            $total_views = $detailed_views = $total = [];
-            $groupPeople = collect([]);
-            $caches = $this->getCaches()->eye_cache;
-
-            if ($caches) {
-
-    //            $groups = $caches->keys()->map(function ($value) {
-    //                return $this->findGroupParent($value);
-    //            })->unique()->flip();
-
-                $total_page_count = $caches->sum(function ($ids) {
-                    return $ids->sum(function ($value) {
-                        return collect($value)->sum('count');
-                    });
-                });
-
-                foreach ($caches as $type => $getCache) {
-
-                    // cache name => ips => ids => details
-
-                    ///////===========---------------Detailed-Views
-                    /**
-                     * IDs of pages
-                     */
-                    $cache_ids = $getCache->map(function ($ids) {
-                        return array_keys($ids);
-                    })->collapse()->countBy();
-
-
-                    foreach ($getCache->collapse()->groupBy('page_id') as $id => $details) {
-                        $detailed_views[] = [
-                            'page_id' => $id,
-                            'page_type' => $this->type($type),
-                            'user_count' => $cache_ids[$id],
-                            'page_count' => $details->sum('count'),
-                            'created_at' => $time,
-                        ];
-                    }
-
-                    $groupType = $this->findGroupParent($type);
-                    ///////===========---------------Total-Views
-                    $typeCount = [];
-
-                    foreach ($getCache as $ip => $ids) {
-
-                        $count = collect($ids)->sum('count');
-
-                        $typeCount[] = $count;
-
-
-                        if ($groupType) {
-
-                            if (isset($groupPeople[$groupType])) {
-
-                                if (isset($groupPeople[$groupType]["page_count"])) {
-
-                                    $page_count = collect($groupPeople[$groupType])["page_count"];
-                                    $page_count += $count;
-                                    $groupPeople[$groupType] = ["page_count" => $page_count];
-
-                                }
-                                else {
-
-
-                                    $groupPeople[$groupType] = collect($groupPeople[$groupType]);
-                                    $groupPeople[$groupType]->page_count = $count;
-
-                                }
-
-                            } else {
-
-                                $groupPeople[$groupType] = ["page_count" => $count];
-
-                            }
-
-                        }
-
-
-                        $total[] = [
-                            $ip => $count,
-                        ];
-
-                    }
-
-
-
-
-                    /**
-                     * Visits of Each Cache
-                     */
-                    $total_views[] = [
-                        'type' => $type,
-                        'user_count' => $getCache->count(),
-                        'page_count' => array_sum($typeCount),
-                        'created_at' => $time,
-                    ];
-
-
-                    $groupType = $this->findGroupParent($type);
-                    if (isset($merged[$groupType])) {
-                        $merged[$groupType] = $merged[$groupType]->merge($getCache);
-                    } else {
-                        $merged[$groupType] = $getCache;
-                    }
-
-                }
-
-                $groupedCount = collect($merged)->map(function ($value, $key) use ($groupPeople , $time) {
-                    return [
-                        'type'       => $key,
-                        'user_count' => $value->unique()->count(),
-                        'page_count' => $groupPeople[$key]['page_count'],
-                        'created_at' => $time,
-                    ];
-                })->values()->toArray();
-
-
-
-                /**
-                 * All Visited People
-                 */
-                $people = [];
-                foreach ($total as $detail) {
-                    $ip = key($detail);
-                    if (!isset($people[$ip]))
-                        $people[$ip] = $detail[$ip];
-                    else
-                        $people[$ip] += $detail[$ip];
-                }
-
-                /**
-                 * All Visits of All Page Combined
-                 */
-                $total_page_count = $caches->sum(function ($ids) {
-                    return $ids->sum(function ($value) {
-                        return collect($value)->sum('count');
-                    });
-                });
-
-                $total_users = [
-                    'type' => 'total',
-                    'user_count' => count($people),
-                    'page_count' => $total_page_count, //array_sum($people)
-                    'created_at' => $time,
-                ];
-
-                if (isset($total_views)) {
-                    array_push($total_views, $total_users);
-                    $total_views = array_merge($total_views, $groupedCount);
-                }
-
-            }
-
-            return [
-                'total' => $total_views ?? [],
-                'detail' => $detailed_views ?? [],
-            ];
-        }
-        catch (Exception $e){
-            Log::info($e->getMessage());
-        }
-    }
 
     /**
      * @param string $type
