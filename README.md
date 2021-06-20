@@ -80,9 +80,9 @@ in `config\eye.php` you can define your **cache names** , **types** and **cache 
 Pick Any page and use `setAndGetViews` method to cache your viewers and in return get the counts of the cache set.
 ```php
 /** 
- * setAndGetViews(string $cache_name ,  int $id = 0) 
- * You can use $id for relating a cache/page to a record in database such as a Product or Article
- * ! $id = 0 means we are NOT relating this cache/page to any record in database
+ *  setAndGetViews(string $cache_name ,  int $id = 0) 
+ *  You can use $id for relating a cache/page to a record in database such as a Product or Article
+ ** $id = 0 means we are NOT relating this cache/page to any record in database
  * */
 
 $pageViews = setAndGetViews("cache_name_1"); // independent pages
