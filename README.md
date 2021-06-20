@@ -27,7 +27,7 @@ Install via Composer
 	// In your aliases array.
 	'aliases' => [
 	    ...
-	    'Payment' => Ami\Eye\Facade\Eye::class,
+	    'Eye' => Ami\Eye\Facade\Eye::class,
 	],
 	```
 2. Publish files via Artisan
@@ -47,39 +47,32 @@ Install via Composer
 In order to manage your caches, you should know your pages. Every page (or to be precise Every route) can have it's own cache. So you'll have to :
 ### 1. Define your caches
 in `config\eye.php` you can define your **cache names** , **cache types** and **cache groups**.
--  **cache names** & **cache types** are defined as **key** & **value**. You can use types for recording in **Detailed Table**. On the other hand, You can use Groupes are for finding the Sum of specific caches.
+-  **cache names** & **cache types** are defined as **key** & **value**. You can use types for recording in **Detailed Table**. 
 	
 	```php
 	'cache_types'  => [
-	
 		'cache_name_1'  =>  "type_in_database_1",
-
 		'cache_name_2'  =>  "type_in_database_2",
-
 		'cache_name_3'  =>  "type_in_database_3",
-
 		'cache_name_4'  =>  "type_in_database_4",
-	
+		...
 	],
 	```
+- On the other hand, You can use **cache groups** for finding the Sum of specific caches.
 	```php
-		'type_groups'  => [
-		
-			"cache_group1"  => [
-			
-				'cache_name_1',
-				
-				'cache_name_2',
-				
-			],
-			
-			"cache_group2"  => [
-			
-				'cache_name_3',
-				
-				'cache_name_4',
-				
-			],
-			
-		],
+	'type_groups'  => [
+		"cache_group1"  => ['cache_name_1','cache_name_2'],
+		"cache_group2"  => ['cache_name_3','cache_name_4'],
+		...
+	],
 	```
+	I'll explain more further in methods.
+
+- Optional - You can also change name of the tables by changing this array.
+	```php
+	'tables' => [
+        'total'   => "eye_total_views",
+        'details' => "eye_detailed_views",
+    ],
+	```
+
