@@ -29,6 +29,9 @@
             "aliases": {
                 "Eye": "Ami\\Eye\\Facade\\Eye"
             }
+        },
+        "branch-alias": {
+            "dev-main": "0.0.x-dev"
         }
     },
     "require": {
