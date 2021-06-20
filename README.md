@@ -61,24 +61,25 @@ in `config\eye.php` you can define your **cache names** , **cache types** and **
 		'cache_name_4'  =>  "type_in_database_4",
 	
 	],
-	
-	'type_groups'  => [
-	
-		"cache_group1"  => [
+	```
+	```php
+		'type_groups'  => [
 		
-			'cache_name_1',
+			"cache_group1"  => [
 			
-			'cache_name_2',
+				'cache_name_1',
+				
+				'cache_name_2',
+				
+			],
+			
+			"cache_group2"  => [
+			
+				'cache_name_3',
+				
+				'cache_name_4',
+				
+			],
 			
 		],
-		
-		"cache_group2"  => [
-		
-			'cache_name_3',
-			
-			'cache_name_4',
-			
-		],
-		
-	],
 	```
