@@ -68,7 +68,7 @@ in `config\eye.php` you can define your **cache names** , **types** and **cache 
 	```
 	I'll explain more further in methods.
 
-- Optional - You can also change name of the tables by changing this array.
+- Optional - You can also change name of the tables by changing values of this array.
 	```php
 	'tables' => [
         'total'   => "eye_total_views",
