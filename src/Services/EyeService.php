@@ -543,16 +543,7 @@ class EyeService
      * @param $grouped
      * @return array
      */
-    private function groupByTime($grouped)
-    {
-
-        $grouped = $grouped->groupBy(function ($date) {
-            return \Illuminate\Support\Carbon::parse($date->created_at)->format('Y/m/d'); // grouping by years
-        })->take(30);
-        $total_views = [];
-        foreach ($grouped as $key => $value) {
-
-            private function groupByTime($grouped , $timeType = "gregorian")
+    private function groupByTime($grouped , $timeType = "gregorian")
     {
 
         $grouped = $grouped->groupBy(function ($date) {
@@ -575,19 +566,6 @@ class EyeService
                 'user_count' => $value->sum('user_count'),
                 'page_count' => $value->sum('page_count'),
                 'date' => time,
-            ];
-
-        }
-        return $total_views;
-
-    }
-            /**
-             * Total Views of Types
-             */
-            $total_views[] = [
-                'user_count' => $value->sum('user_count'),
-                'page_count' => $value->sum('page_count'),
-                'date' => jdate($key)->format('%d %B'),
             ];
 
         }
