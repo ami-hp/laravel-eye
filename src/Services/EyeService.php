@@ -547,7 +547,7 @@ class EyeService
     {
 
         $grouped = $grouped->groupBy(function ($date) {
-            return \Illuminate\Support\Carbon::parse($date->created_at)->format('Y/m/d'); // grouping by years
+            return Carbon::parse($date->created_at)->format('Y/m/d'); // grouping by years
         })->take(30);
         $total_views = [];
 
@@ -565,7 +565,7 @@ class EyeService
             $total_views[] = [
                 'user_count' => $value->sum('user_count'),
                 'page_count' => $value->sum('page_count'),
-                'date' => time,
+                'date' => $time,
             ];
 
         }
