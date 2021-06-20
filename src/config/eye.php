@@ -2,14 +2,6 @@
 
 return [
 
-
-
-    'tables' => [
-        'total'   => "eye_total_views",
-        'details' => "eye_detailed_views",
-    ],
-
-
     /**
      *! Define All Cache Names and its Types
      ** cache_name => "page_type"
@@ -28,6 +20,9 @@ return [
         'cache_name_4'   => "type_in_database_4",
     ],
 
+    /**
+     * Takes place in Total Table
+     */
     'type_groups' => [
 
         "cache_group1" => [
@@ -42,4 +37,12 @@ return [
 
     ],
 
+
+    /**
+     * Name of tables
+     */
+    'tables' => [
+        'total'   => "eye_total_views",
+        'details' => "eye_detailed_views",
+    ],
 ];
