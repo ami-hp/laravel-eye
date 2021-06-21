@@ -137,4 +137,6 @@ Go to CronJobs , Add your Artisan file and Execution time then write laravel-eye
 
 In `CPanel\Cron Jobs`
 
-![alt text](https://github.com/ami-hp/laravel-eye/blob/main/docs/img/cpanel-cronjob.png)
+<div align="center">
+	<img src="https://github.com/ami-hp/laravel-eye/blob/main/docs/img/cpanel-cronjob.png?raw=true" style="border-radius:10px;"/>
+</div>
