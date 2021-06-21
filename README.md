@@ -125,24 +125,34 @@ Illuminate\Support\Collection { ▼
 }
 ```
 
-### 3. Insert Daily Caches in Database via **Cron Job**
+### 3. Insert Daily Caches in Database
+
+#### 3-1. via **Terminal**
+
+For Debugging purposes, You can use laravel-eye command written in  `App\Console\Commands\DailyViews.php`
+
+#### 3-2. via **Cron Job**
 With Cron Job you don't have to request a query everytime a user loads your webpage. CronJob Does this anytime you want.
 
 All you have to do is :
 Go to CronJobs , Add your Artisan file and Execution time then write laravel-eye command written in  `App\Console\Commands\DailyViews.php` in front of it. For instance:
 
-`/usr/local/bin/php /home/user-name/project-root-path/artisan eye:record > /dev/null 2>&1`
+`/usr/local/bin/php /home/my-username/my-project-root-path/artisan eye:record > /dev/null 2>&1`
 
 **Example:**
 
-From `CPanel` menu, go to `Cron Jobs`
+a. From `CPanel` menu, go to `Cron Jobs`
 
 <div align="center">
 	<img src="https://github.com/ami-hp/laravel-eye/blob/main/docs/img/cpanel-cronjob.png?raw=true" style="max-width:500px;border-radius:10px;"/>
 </div>
 
-Go to `Common Settings`. Set execution time and your command. change **username** and **path-to-base-of-project** to locate **Artisan** file.
+
+b. Go to `Common Settings`. Set execution time and your command. change **username** and **path-to-base-of-project** to locate your **Artisan** file.
 
 <div align="center">
 	<img src="https://github.com/ami-hp/laravel-eye/blob/main/docs/img/cp-cronjob-settings.png?raw=true" style="max-width:500px;border-radius:10px"/>
 </div>
+
+
+Now wait for execution.
