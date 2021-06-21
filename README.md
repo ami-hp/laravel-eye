@@ -1,5 +1,8 @@
+![GitHub](https://img.shields.io/github/license/ami-hp/laravel-eye?style=for-the-badge)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/ami-hp/laravel-eye?color=00aa00&label=Release&logo=github&style=for-the-badge)
 
-# Laravel Visitor Counter
+
+# Eye : Laravel Visitor Counter
 `ami-hp/laravel-eye` has the ability to record your website's **Daily Views** in database by only two queries per day.  The trick is in using **Laravel's Cache** and **Cron Job**.
 >  So just remember this: **DO NOT FLUSH THE CACHE**.
 
@@ -128,7 +131,9 @@ With Cron Job you don't have to request a query everytime a user loads your webp
 All you have to do is :
 Go to CronJobs , Add your Artisan file and Execution time then write laravel-eye command written in  `App\Console\Commands\DailyViews.php` in front of it. For instance:
 
-`/usr/local/bin/php /home/user-name/project-path/artisan eye:record > /dev/null 2>&1`
+`/usr/local/bin/php /home/user-name/project-root-path/artisan eye:record > /dev/null 2>&1`
 
 **Example:**
 
+In `CPanel\Cron Jobs`
+![alt text](/docs/img/cpanel-cronjobs.png)
