@@ -13,7 +13,7 @@ class CreateEyeDetailedViewsTable extends Migration
      */
     public function up()
     {
-        Schema::create('eye_detailed_views', function (Blueprint $table) {
+        Schema::create(config('eye.tables.details'), function (Blueprint $table) {
             $table->id();
             $table->string('page_id');
             $table->string('page_type');

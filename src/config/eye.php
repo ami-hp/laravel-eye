@@ -14,10 +14,10 @@ return [
      *
      */
     'cache_types' => [
-        'cache_name_1'   => "type_in_database_1",
-        'cache_name_2'   => "type_in_database_2",
-        'cache_name_3'   => "type_in_database_3",
-        'cache_name_4'   => "type_in_database_4",
+        'cache_name_1'   => "type_1",
+        'cache_name_2'   => "type_2",
+        'cache_name_3'   => "type_3",
+        'cache_name_4'   => "type_4",
     ],
 
     /**

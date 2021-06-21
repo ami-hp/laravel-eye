@@ -13,7 +13,7 @@ class CreateEyeTotalViewsTable extends Migration
      */
     public function up()
     {
-        Schema::create('eye_total_views', function (Blueprint $table) {
+        Schema::create(config('eye.tables.total'), function (Blueprint $table) {
             $table->id();
             $table->string('type');
             $table->unsignedBigInteger('user_count');

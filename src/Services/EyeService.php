@@ -48,7 +48,7 @@ class EyeService
      * @param int $id
      * @return stdClass
      */
-    public function setAndGetViews(string $cache_name, $id = 0)
+    public function watch(string $cache_name, $id = 0)
     {
         $views = new stdClass();
         $page_views = $this->set_cache_views($cache_name, $id);
@@ -366,7 +366,7 @@ class EyeService
      */
     private function searchType($name)
     {
-        return ($this->getTypes())[$name];
+        return (config('eye.cache_types'))[$name];
     }
 
     /**

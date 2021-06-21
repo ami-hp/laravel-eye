@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  * @package App\Services
  * @method static record()
  * @method static prepare_for_database()
- * @method static setAndGetViews(string $cache_name ,  int $id = 0)
+ * @method static watch(string $cache_name ,  int $id = 0)
  * @method static readyTotalChart(string|array $type = "total" , $timeType = "gregorian",  Boolean $json = true)
  * @method static readyDetailsChart(string|array $type = "total" , int|string $page_id = 0 , $timeType = "gregorian", Boolean $json = true)
  */
