@@ -156,3 +156,30 @@ b. Go to `Common Settings`. Set execution time and your command. change **userna
 
 
 Now wait for execution.
+
+### 4. Get your daily records from Database
+
+For each table, there is a method to use.
+
+- eye_total_table : `readyTotalChart`
+- eye_detailed_table : `readyDetailsChart`
+
+```php
+/**
+ *  readyTotalChart(string|array $type = "total" , $timeType = "gregorian",  Boolean $json = true)
+ ** $type is the cache_name OR the group_name you set in confing
+ ** if $type were string , function will return a single type of records in database
+ ** if $type were array  , function will return a summed up result of multiple types of records in database
+ ** $timeType can be gregorian or jalili BUT for jalili you'll have to require morilog/jalali
+ ** $json is boolean. if false , return will not be json_encode
+ **/
+
+
+
+/**
+ *  readyDetailsChart(string|array $type = "total" , int $page_id = 0 , $timeType = "gregorian", Boolean $json = true)
+ *  You can use $page_id for  related cache/page to a record in database such as a Product or Article
+ ** $id = 0 means we are NOT relating this cache/page to any record in database
+ **/
+
+```

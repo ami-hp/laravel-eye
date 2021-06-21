@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 
 class DailyViews extends Command
@@ -50,7 +51,13 @@ class DailyViews extends Command
      */
     public function handle()
     {
-        if(class_exists("\Ami\Eye\Facade\Eye"))
-            \Ami\Eye\Facade\Eye::record();
+        try{
+            if(class_exists("\Ami\Eye\Facade\Eye"))
+                \Ami\Eye\Facade\Eye::record();
+        }
+        catch(Exception $e){
+            Log::info($e->getMessage());
+            echo $e->getMessage();
+        }
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * Class Eye
  * @package App\Services
  * @method static record()
+ * @method static cacheForget(array $names)
  * @method static prepare_for_database()
  * @method static watch(string $cache_name ,  int $id = 0)
  * @method static readyTotalChart(string|array $type = "total" , $timeType = "gregorian",  Boolean $json = true)

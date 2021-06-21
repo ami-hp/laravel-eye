@@ -99,7 +99,8 @@ class EyeService
 
         if (gettype($type) == 'array') {
             $view = $view->whereIn('page_type', $type);
-        } elseif (gettype($type) == 'string') {
+        } 
+        elseif (gettype($type) == 'string') {
             $view = $view->where('page_type', $type)->where('page_id', $page_id);
         }
 
@@ -323,6 +324,23 @@ class EyeService
         catch (Exception $e){
             Log::info($e->getMessage());
         }
+    }
+
+    /**
+     * @param array $names
+     */
+    public function cacheForget(array $names){
+
+        try{
+            foreach ($names as $name) {
+                Cache::forget($name);
+            }
+        }
+        catch (Exception $e){
+            Log::info($e->getMessage());
+        }
+
+
     }
 
 
@@ -553,6 +571,7 @@ class EyeService
 
         foreach ($grouped as $key => $value) {
             if($timeType == "gregorian"){
+                
                 $time = Carbon::parse($key)->format('%d %B');
             }
             elseif($timeType == "jalili"){
@@ -570,23 +589,6 @@ class EyeService
 
         }
         return $total_views;
-
-    }
-
-    /**
-     * @param array $names
-     */
-    public function cacheForget(array $names){
-
-        try{
-            foreach ($names as $name) {
-                Cache::forget($name);
-            }
-        }
-        catch (Exception $e){
-            Log::info($e->getMessage());
-        }
-
 
     }
 
