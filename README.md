@@ -11,12 +11,13 @@
 
 ## Installation
 Install via Composer
+
 `$ composer require ami-hp/laravel-eye`
 
 ## Configuration
 **Ignore this** If you are using  `Laravel 5.5`  or higher;  you don't need to include the provider and alias. (Skip to b)
 
-1. In your  `config/app.php`  file add these two lines.
+1. In your `config/app.php`  file add these two lines.
 	```php
 	// In your providers array.
 	'providers' => [
@@ -77,19 +78,57 @@ in `config\eye.php` you can define your **cache names** , **types** and **cache 
 	```
 
 ### 2. Cache Your Viewers
-Pick Any page and use `setAndGetViews` method to cache your viewers and in return get the counts of the cache set.
+Pick any page and use `watch` method to cache your viewers and in return get the counts of the cache.
 ```php
 /** 
- *  setAndGetViews(string $cache_name ,  int $id = 0) 
+ *  watch(string $cache_name ,  int $id = 0) 
  *  You can use $id for relating a cache/page to a record in database such as a Product or Article
  ** $id = 0 means we are NOT relating this cache/page to any record in database
- * */
+ **/
 
-$pageViews = setAndGetViews("cache_name_1"); // independent pages
+$pageViews = watch("cache_name_1"); // independent pages
 
-$pageViews = setAndGetViews("cache_name_2" , 5); // related pages
+// OR
 
-//$pageViews returns : -------
+$pageViews = watch("cache_name_2" , 5); // related pages
 
+dump($pageViews);
+
+//------------Returns
+{
+  +"users": 1 // count of IPs in cache('cache_name_2') for id 5
+  +"seen": 2 // count of page visits in cache('cache_name_2') for id 5
+}
+
+
+
+
+dump(cache("cache_name_1"));
+
+//-----------Returns 
+Illuminate\Support\Collection { ▼
+  #items: array:1 [▼
+    "127.0.0.1" => array:1 [▼
+      0 => array:6 [▼
+        "ip" => "127.0.0.1"
+        "user_agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...
+        "page_id" => 0
+        "page_type" => "type_1"
+        "visited_at" => Carbon\Carbon @1624264801 {▶ ...}
+        "count" => 2
+      ]
+    ]
+  ]
+}
 ```
-To acually see what is in your cache...(in development)
+
+### 3. Insert Daily Caches in Database via **Cron Job**
+With Cron Job you don't have to request a query everytime a user loads your webpage. CronJob Does this anytime you want.
+
+All you have to do is :
+Go to CronJobs , Add your Artisan file and Execution time then write laravel-eye command written in  `App\Console\Commands\DailyViews.php` in front of it. For instance:
+
+`/usr/local/bin/php /home/user-name/project-path/artisan eye:record > /dev/null 2>&1`
+
+**Example:**
+
