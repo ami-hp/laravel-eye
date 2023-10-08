@@ -3,9 +3,14 @@
 namespace Ami\Eye\Models;
 
 use Ami\Eye\Support\Period;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static create(array $attributes)
+ */
 class Visit extends Model
 {
 
@@ -16,10 +21,13 @@ class Visit extends Model
      */
     public $timestamps = false;
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function __construct(array $attributes = [])
     {
         if (!isset($this->table)) {
-            $this->setTable(config('eye.table_name'));
+            $this->setTable(Container::getInstance()->make('config')['eye']['table_name']);
         }
         parent::__construct($attributes);
     }
