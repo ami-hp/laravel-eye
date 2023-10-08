@@ -95,7 +95,6 @@ class EyeServiceProvider extends ServiceProvider
             } elseif ($startDateTime !== null && $endDateTime !== null) {
                 $this->whereBetween('viewed_at', [$startDateTime, $endDateTime]);
             }
-
             return $this;
         });
 
