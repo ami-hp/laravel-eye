@@ -6,7 +6,7 @@ use Ami\Eye\Services\EyeService;
 use Ami\Eye\Support\CrawlerDetectAdapter;
 use Ami\Eye\Support\Period;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
+use Ami\Eye\Support\MacroCollection;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
@@ -76,26 +76,16 @@ class EyeServiceProvider extends ServiceProvider
     protected function registerMacroHelpers()
     {
         Collection::macro('whereVisitor', function (Model $user) {
-            return $this->where('visitor_id' , $user->id)->where('visitor_type' , get_class($user));
+            return (new MacroCollection)->whereVisitable($this , $user);
         });
 
         Collection::macro('whereVisitable', function (Model $post) {
-            return $this->where('visitor_id' , $post->id)->where('visitor_type' , get_class($post));
+            return (new MacroCollection)->whereVisitable($this , $post);
         });
-        
-        Collection::macro('period', function (Period $period) {
 
-            $startDateTime = $period->getStartDateTime();
-            $endDateTime   = $period->getEndDateTime();
-
-            if ($startDateTime !== null && $endDateTime === null) {
-                $this->where('viewed_at', '>=', $startDateTime);
-            } elseif ($startDateTime === null && $endDateTime !== null) {
-                $this->where('viewed_at', '<=', $endDateTime);
-            } elseif ($startDateTime !== null && $endDateTime !== null) {
-                $this->whereBetween('viewed_at', [$startDateTime, $endDateTime]);
-            }
-            return $this;
+        Collection::macro('period', function (Period $period)
+        {
+            return (new MacroCollection)->period($this , $period);
         });
 
     }

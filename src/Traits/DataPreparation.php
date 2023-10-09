@@ -116,8 +116,9 @@ trait DataPreparation
      */
     public function __construct()
     {
-        $this->request     = Container::getInstance()->make('request');
-        $this->config      = Container::getInstance()->make('config')['eye'];
+        $this->request          = Container::getInstance()->make('request');
+        $this->config           = Container::getInstance()->make('config')['eye'];
+        $this->visitorCookieKey = Container::getInstance()->make('config')['eye']['visitor_cookie_key'] ?? "eye_visitor_identificaion";
 
         $this->viaDriver($this->config['default_driver']);
         $this->setVisitor($this->request->user());
@@ -279,16 +280,6 @@ trait DataPreparation
     public function collection(?string $collection = null) : self
     {
         $this->collection = $collection;
-
-        return $this;
-    }
-
-    /**
-     * Set the period.
-     */
-    public function period(?Period $period): self
-    {
-        $this->period = $period;
 
         return $this;
     }

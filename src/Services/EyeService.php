@@ -6,6 +6,7 @@ namespace Ami\Eye\Services;
 use Ami\Eye\Traits\DataPreparation;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Model;
 
 
 class EyeService
@@ -14,11 +15,12 @@ class EyeService
     use DataPreparation;
 
     /**
-     * @throws BindingResolutionException
+     * @return Cacher
      */
-    public function cacher()
+    public function cache(): Cacher
     {
-        return Container::getInstance()->make(Cacher::class);
+        return new Cacher($this);
     }
+
 
 }
