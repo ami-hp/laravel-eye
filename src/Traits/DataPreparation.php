@@ -380,7 +380,7 @@ trait DataPreparation
             'unique_id'    => $this->uniqueId(),
             'languages'    => $this->languages(),
             'useragent'    => $this->userAgent(),
-            'collection'   => $this->collection(),
+            'collection'   => $this->collection,
             'headers'      => $this->httpHeaders(),
             'visitable_id'   => $this->getVisitableModel() ? $this->getVisitableModel()->id : null,
             'visitable_type' => $this->getVisitableModel() ? get_class($this->getVisitableModel()) : null,
