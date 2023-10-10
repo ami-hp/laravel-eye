@@ -25,7 +25,7 @@ trait DataPreparation
      *
      * @var array
      */
-    protected $config;
+    public $config;
 
     /**
      * Collection Name.
