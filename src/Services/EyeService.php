@@ -17,7 +17,7 @@ class EyeService
     /**
      * @return Cacher
      */
-    public function cache(): Cacher
+    public function viaCache(): Cacher
     {
         return new Cacher($this);
     }

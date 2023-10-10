@@ -7,7 +7,7 @@ use Ami\Eye\Drivers\JenssegersAgent;
 use Ami\Eye\Drivers\UAParser;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Services\EyeService;
-use Ami\Eye\Support\Period;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
@@ -114,13 +114,13 @@ trait DataPreparation
      * EyeService constructor.
      * @throws Exception
      */
-    public function __construct()
+    public function __construct(ConfigRepository $config)
     {
         $this->request          = Container::getInstance()->make('request');
-        $this->config           = Container::getInstance()->make('config')['eye'];
-        $this->visitorCookieKey = Container::getInstance()->make('config')['eye']['visitor_cookie_key'] ?? "eye_visitor_identificaion";
+        $this->config           = $config;
+        $this->visitorCookieKey = $this->config->get('eye.cookie.key') ?? "eye__visitor";
 
-        $this->viaDriver($this->config['default_driver']);
+        $this->viaDriver($this->config->get('eye.default_driver'));
         $this->setVisitor($this->request->user());
     }
 
@@ -403,7 +403,7 @@ trait DataPreparation
      */
     protected function cookieExpirationInMinutes(): int
     {
-        return 2628000; // aka 5 years
+        return $this->config->get('eye.cookie.expire_time');
     }
 
     /**

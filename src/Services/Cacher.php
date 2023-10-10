@@ -2,6 +2,7 @@
 
 namespace Ami\Eye\Services;
 
+use Ami\Eye\Jobs\ProcessVisits;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Support\Period;
 use Exception;
@@ -23,7 +24,7 @@ class Cacher
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
-        $this->cache_name    = $this->config['cache']['key'] ?? "eye_records";
+        $this->cache_name    = $eye->config->get('cache.key') ?? "eye_records";
         $this->cached_visits = Cache::get($this->cache_name);
     }
 
@@ -72,6 +73,10 @@ class Cacher
 
         $visit = $this->eye()->getCurrentVisit();
 
+        if($this->maxedOut())
+            $this->pushCacheToDatabase();
+
+
         $this->pushVisitToCache($visit);
 
 //        if($this->storage === "database"){
@@ -85,6 +90,19 @@ class Cacher
 //        }
 
         return $visit;
+    }
+
+    /**
+     * @return void
+     */
+    public function pushCacheToDatabase() : void
+    {
+        $visits = $this->get();
+
+        //insert to database
+        dispatch(new ProcessVisits($visits , 1000));
+
+        Cache::forget($this->cache_name);
     }
 
     /**
@@ -111,5 +129,18 @@ class Cacher
         return $visit;
 
     }
+
+    /**
+     * @return bool
+     */
+    protected function maxedOut(): bool
+    {
+        if($this->eye()->config->get('eye.cache.max_count') !== null)
+            return $this->eye()->config->get('eye.cache.max_count') === $this->get()->count() ;
+        else
+            return false;
+    }
+
+
 
 }

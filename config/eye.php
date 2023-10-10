@@ -21,7 +21,10 @@ return [
     | give this cookie a custom name, you can specify that here.
     |
     */
-    'visitor_cookie_key' => 'eloquent_viewable',
+    'cookie' =>[
+        'key' => 'eye__visitor',
+        'expire_time' => 2628000, // aka 5 years
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -34,4 +37,6 @@ return [
     */
     'default_driver' => 'jenssegers',
 
+
+    //TODO Crawler
 ];
