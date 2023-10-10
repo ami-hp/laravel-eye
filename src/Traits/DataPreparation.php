@@ -10,6 +10,7 @@ use Ami\Eye\Services\EyeService;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Exception;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Date;
@@ -90,8 +91,6 @@ trait DataPreparation
      */
     protected $visitorCookieKey;
 
-    protected $period = null;
-
     /*
     |--------------------------------------------------------------------------
     | List of Drivers
@@ -114,13 +113,13 @@ trait DataPreparation
      * EyeService constructor.
      * @throws Exception
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct()
     {
         $this->request          = Container::getInstance()->make('request');
-        $this->config           = $config;
-        $this->visitorCookieKey = $this->config->get('eye.cookie.key') ?? "eye__visitor";
+        $this->config           = Container::getInstance()->make('config');
+        $this->visitorCookieKey = $this->config['eye']['cookie']['key'] ?? "eye__visitor";
 
-        $this->viaDriver($this->config->get('eye.default_driver'));
+        $this->viaDriver($this->config['eye']['default_driver']);
         $this->setVisitor($this->request->user());
     }
 
@@ -286,6 +285,7 @@ trait DataPreparation
 
     /**
      * Get the unique ID that represents the visitor.
+     * @throws BindingResolutionException
      */
     public function uniqueId(): string
     {
@@ -400,10 +400,11 @@ trait DataPreparation
 
     /**
      * Get the expiration in minutes.
+     * @throws BindingResolutionException
      */
     protected function cookieExpirationInMinutes(): int
     {
-        return $this->config->get('eye.cookie.expire_time');
+        return $this->config['cookie']['expire_time'];
     }
 
     /**

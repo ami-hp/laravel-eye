@@ -24,7 +24,7 @@ class Cacher
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
-        $this->cache_name    = $eye->config->get('cache.key') ?? "eye_records";
+        $this->cache_name    = $eye->config['eye']['cache']['key'] ?? "eye_records";
         $this->cached_visits = Cache::get($this->cache_name);
     }
 
@@ -135,8 +135,8 @@ class Cacher
      */
     protected function maxedOut(): bool
     {
-        if($this->eye()->config->get('eye.cache.max_count') !== null)
-            return $this->eye()->config->get('eye.cache.max_count') === $this->get()->count() ;
+        if($this->eye()->config['eye']['cache']['max_count'] !== null)
+            return $this->eye()->config['eye']['cache']['max_count'] === $this->get()->count();
         else
             return false;
     }
