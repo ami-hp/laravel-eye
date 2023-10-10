@@ -31,7 +31,7 @@ class Cacher
     /**
      * @return bool
      */
-    public function deleteAll(): bool
+    public function forget(): bool
     {
         return Cache::forget($this->cache_name);
     }
@@ -97,7 +97,7 @@ class Cacher
      */
     public function pushCacheToDatabase() : void
     {
-        $visits = $this->get();
+        $visits = $this->cached_visits;
 
         //insert to database
         dispatch(new ProcessVisits($visits , 1000));
@@ -120,7 +120,7 @@ class Cacher
     protected function pushVisitToCache(Visit $visit): Visit
     {
 
-        $visits = $this->get();
+        $visits = $this->cached_visits;
 
         $visits = $visits->push($visit);
 
@@ -136,7 +136,7 @@ class Cacher
     protected function maxedOut(): bool
     {
         if($this->eye()->config['eye']['cache']['max_count'] !== null)
-            return $this->eye()->config['eye']['cache']['max_count'] === $this->get()->count();
+            return $this->eye()->config['eye']['cache']['max_count'] <= $this->cached_visits->count();
         else
             return false;
     }

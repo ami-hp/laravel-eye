@@ -3,13 +3,21 @@
 return [
 
     //name of the table which visit records should save in
-    'table_name' =>  'eye_visits',
+    'table_name' =>  'ami_eye_visits',
 
-    // database or cache
-    'default_storage' => 'cache',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cookies
+    |--------------------------------------------------------------------------
+    |
+    | This package binds visitors to views using a cookie. If you want to
+    | give this cookie a custom name, you can specify that here.
+    |
+    */
     'cache' => [
         'key' => 'ami.laravel-eye.records',
+        'max_count' => 1000*1000,
     ],
 
     /*

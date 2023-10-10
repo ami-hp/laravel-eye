@@ -404,7 +404,7 @@ trait DataPreparation
      */
     protected function cookieExpirationInMinutes(): int
     {
-        return $this->config['cookie']['expire_time'];
+        return $this->config['eye']['cookie']['expire_time'] ?? 10;
     }
 
     /**
