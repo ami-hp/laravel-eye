@@ -27,11 +27,20 @@ class ProcessVisits implements ShouldQueue
 
         $this->visits->chunk($this->chunkSize)->each(function ($chunk) {
             $data = $chunk->map(function ($visit) {
+                $visit = $this->casts($visit);
                 return $visit->toArray();
             })->toArray();
 
             Visit::query()->insert($data);
         });
 
+    }
+
+    private function casts($visit)
+    {
+        $visit->request   = json_encode($visit->request);
+        $visit->languages = json_encode($visit->languages);
+        $visit->headers   = json_encode($visit->headers);
+        return $visit;
     }
 }

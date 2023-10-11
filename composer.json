@@ -35,6 +35,7 @@
     },
     "require": {
         "php": ">=7.2",
+        "ext-json": "*",
         "illuminate/cache": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
         "illuminate/database": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
         "illuminate/contracts": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",

@@ -8,6 +8,7 @@ use Ami\Eye\Support\Period;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 class Cacher
@@ -25,7 +26,7 @@ class Cacher
     {
         $this->eye = $eye;
         $this->cache_name    = $eye->config['eye']['cache']['key'] ?? "eye_records";
-        $this->cached_visits = Cache::get($this->cache_name);
+        $this->cached_visits = Cache::get($this->cache_name) ?? collect();
     }
 
     /**
@@ -33,6 +34,8 @@ class Cacher
      */
     public function forget(): bool
     {
+        $this->cached_visits = collect();
+
         return Cache::forget($this->cache_name);
     }
 
@@ -93,16 +96,18 @@ class Cacher
     }
 
     /**
-     * @return void
+     * @return bool
      */
-    public function pushCacheToDatabase() : void
+    public function pushCacheToDatabase() : bool
     {
         $visits = $this->cached_visits;
 
         //insert to database
         dispatch(new ProcessVisits($visits , 1000));
 
-        Cache::forget($this->cache_name);
+        //'queue:work'
+
+        return $this->forget();
     }
 
     /**
@@ -140,7 +145,5 @@ class Cacher
         else
             return false;
     }
-
-
 
 }
