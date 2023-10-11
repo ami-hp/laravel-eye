@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
 
 class Cacher
 {
@@ -103,7 +104,7 @@ class Cacher
         $visits = $this->cached_visits;
 
         //insert to database
-        dispatch(new ProcessVisits($visits , 1000));
+        Queue::push(new ProcessVisits($visits , 1000));
 
         //'queue:work'
 
