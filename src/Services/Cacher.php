@@ -23,6 +23,11 @@ class Cacher
 
     public $period = null;
 
+    /**
+     * @var bool
+     */
+    private $once = false;
+
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
@@ -40,9 +45,17 @@ class Cacher
         return Cache::forget($this->cache_name);
     }
 
-    public function period(Period $period): Cacher
+    public function period(Period $period): self
     {
         $this->period = $period;
+
+        return $this;
+    }
+
+
+    public function once(): self
+    {
+        $this->once = true;
 
         return $this;
     }
@@ -66,20 +79,21 @@ class Cacher
      *
      * @param Model|null $visitable
      * @param Model|null $visitor
-     * @return Visit
+     * @param bool $uniqueView
+     * @return Visit|bool
      * @throws Exception
      */
-    public function record(?Model $visitable = null , ?Model $visitor = null): Visit
+    public function record(?Model $visitable = null , ?Model $visitor = null, bool $once = false)
     {
         if ($visitor !== null) $this->eye()->setVisitor($visitor);
 
         if ($visitable !== null) $this->eye()->setVisitable($visitable);
 
+        if(! $this->shouldRecord($once)) return false;
+
         $visit = $this->eye()->getCurrentVisit();
 
-        if($this->maxedOut())
-            $this->pushCacheToDatabase();
-
+        if($this->maxedOut()) $this->pushCacheToDatabase();
 
         $this->pushVisitToCache($visit);
 
@@ -104,7 +118,25 @@ class Cacher
         $visits = $this->cached_visits;
 
         //insert to database
-        Queue::push(new ProcessVisits($visits , 1000));
+        if($this->eye()->config['eye']['queue']){
+
+            Queue::push(new ProcessVisits($visits , 1000));
+
+        } else {
+
+            $visits->chunk(1000)->each(function ($chunk) {
+                $data = $chunk->map(function ($visit) {
+                    $visit->request   = json_encode($visit->request);
+                    $visit->languages = json_encode($visit->languages);
+                    $visit->headers   = json_encode($visit->headers);
+                    return $visit->toArray();
+                })->toArray();
+
+                Visit::query()->insert($data);
+            });
+
+        }
+
 
         //'queue:work'
 
@@ -146,5 +178,27 @@ class Cacher
         else
             return false;
     }
+
+    /**
+     * @throws Exception
+     */
+    protected function shouldRecord(bool $once = false): bool
+    {
+        // If ignore bots is true and the current visitor is a bot, return false
+        if ($this->eye()->config['eye']['ignore_bots'] && $this->eye()->detector->isCrawler()) {
+            return false;
+        }
+
+        if($once === true || $this->once){
+            $visit = $this->eye()->getCurrentVisit();
+
+            $cacheQuery = $this->cached_visits->whereVisitHappened($visit);
+
+            if($cacheQuery->count() > 0) return false;
+        }
+
+        return true;
+    }
+
 
 }

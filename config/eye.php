@@ -8,15 +8,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cookies
+    | Cache
     |--------------------------------------------------------------------------
     |
-    | This package binds visitors to views using a cookie. If you want to
-    | give this cookie a custom name, you can specify that here.
+    |
+    |
     |
     */
     'cache' => [
-        'key' => 'ami.laravel-eye.records',
+        'key'       => 'ami.laravel-eye.records',
         'max_count' => 1000*1000,
     ],
 
@@ -30,7 +30,7 @@ return [
     |
     */
     'cookie' =>[
-        'key' => 'eye__visitor',
+        'key'         => 'eye__visitor',
         'expire_time' => 2628000, // aka 5 years
     ],
 
@@ -46,5 +46,8 @@ return [
     'default_driver' => 'jenssegers',
 
 
-    //TODO Crawler
+    'ignore_bots' => true,
+
+
+    'queue' => true,
 ];

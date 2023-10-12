@@ -2,8 +2,8 @@
 
 namespace Ami\Eye\Providers;
 
+use Ami\Eye\Models\Visit;
 use Ami\Eye\Services\EyeService;
-use Ami\Eye\Support\CrawlerDetectAdapter;
 use Ami\Eye\Support\Period;
 use Illuminate\Database\Eloquent\Model;
 use Ami\Eye\Support\MacroCollection;
@@ -33,14 +33,6 @@ class EyeServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__ . '/../../config/eye.php' , 'eye');
 
-        $this->app->bind(CrawlerDetectAdapter::class, function ($app) {
-            $detector = new CrawlerDetect(
-                $app['request']->headers->all(),
-                $app['request']->server('HTTP_USER_AGENT')
-            );
-
-            return new CrawlerDetectAdapter($detector);
-        });
     }
 
     /**
@@ -55,7 +47,8 @@ class EyeServiceProvider extends ServiceProvider
             $timestamp = date('Y_m_d_His', time());
 
             $this->publishes([
-                __DIR__ . '/../../database/migrations/create_visits_table.php.stub' => database_path("/migrations/{$timestamp}_create_visits_table.php"),
+                __DIR__ . '/../../database/migrations/create_visits_table.php.stub'
+                => database_path("/migrations/{$timestamp}_create_visits_table.php"),
             ], 'migrations');
         }
 
@@ -76,11 +69,16 @@ class EyeServiceProvider extends ServiceProvider
     protected function registerMacroHelpers()
     {
         Collection::macro('whereVisitor', function (Model $user) {
-            return (new MacroCollection)->whereVisitable($this , $user);
+            return (new MacroCollection)->whereVisitor($this , $user);
         });
 
         Collection::macro('whereVisitable', function (Model $post) {
             return (new MacroCollection)->whereVisitable($this , $post);
+        });
+
+        Collection::macro('whereVisitHappened', function (Visit $visit)
+        {
+            return (new MacroCollection)->whereVisitHappened($this , $visit);
         });
 
         Collection::macro('period', function (Period $period)

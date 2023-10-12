@@ -32,6 +32,25 @@ class MacroCollection
 
     public function whereVisitable($macroThis , Model $post)
     {
-        return $macroThis->where('visitor_id' , $post->id)->where('visitor_type' , get_class($post));
+        return $macroThis->where('visitable_id' , $post->id)->where('visitable_type' , get_class($post));
+    }
+
+    public function whereVisitHappened($macroThis , Model $visit)
+    {
+
+        $cacheQuery = $macroThis->where('unique_id' , $visit->unique_id);
+
+        if($visit->visitable_type !== null && $visit->visitable_id !== null)
+        {
+            $cacheQuery =
+                $cacheQuery
+                    ->where('visitable_type' , $visit->visitable_type)
+                    ->where('visitable_id'   , $visit->visitable_id);
+        }
+        else{
+            $cacheQuery = $cacheQuery->where('url' , $visit->url);
+        }
+
+        return $cacheQuery;
     }
 }

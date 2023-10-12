@@ -7,7 +7,6 @@ use Ami\Eye\Drivers\JenssegersAgent;
 use Ami\Eye\Drivers\UAParser;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Services\EyeService;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -113,10 +112,11 @@ trait DataPreparation
      * EyeService constructor.
      * @throws Exception
      */
-    public function __construct()
+    protected function initializeDataPrepTrait()
     {
         $this->request          = Container::getInstance()->make('request');
         $this->config           = Container::getInstance()->make('config');
+
         $this->visitorCookieKey = $this->config['eye']['cookie']['key'] ?? "eye__visitor";
 
         $this->viaDriver($this->config['eye']['default_driver']);
@@ -270,6 +270,7 @@ trait DataPreparation
         return Request::getSession()->getId();
     }
 
+
     /**
      * Retrieve visitor (user)
      *
@@ -395,12 +396,11 @@ trait DataPreparation
      */
     protected function generateUniqueCookieValue(): string
     {
-        return uniqid('eye|', true).Str::password(80);
+        return uniqid('eye|', true).Str::random(80);
     }
 
     /**
      * Get the expiration in minutes.
-     * @throws BindingResolutionException
      */
     protected function cookieExpirationInMinutes(): int
     {
