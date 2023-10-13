@@ -2,17 +2,17 @@
 
 namespace Ami\Eye\Services;
 
-use Ami\Eye\Jobs\ProcessVisits;
+use Exception;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Support\Period;
-use Exception;
-use Illuminate\Database\Eloquent\Model;
+use Ami\Eye\Jobs\ProcessVisits;
+use Ami\Eye\Contracts\DataManagementInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Database\Eloquent\Model;
 
-class Cacher
+class Cacher implements DataManagementInterface
 {
 
     public $cache_name;
@@ -97,16 +97,6 @@ class Cacher
 
         $this->pushVisitToCache($visit);
 
-//        if($this->storage === "database"){
-//
-//            if ($visitorModel !== null && method_exists($visitorModel, 'visitLogs')) {
-//                $visit = $visitorModel->visitLogs()->create($data);
-//            } else {
-//                $visit = Visit::create($data);
-//            }
-//
-//        }
-
         return $visit;
     }
 
@@ -143,13 +133,6 @@ class Cacher
         return $this->forget();
     }
 
-    /**
-     * @return EyeService
-     */
-    protected function eye(): EyeService
-    {
-        return $this->eye;
-    }
 
     /**
      * @param Visit $visit
@@ -200,5 +183,11 @@ class Cacher
         return true;
     }
 
-
+    /**
+     * @return EyeService
+     */
+    protected function eye(): EyeService
+    {
+        return $this->eye;
+    }
 }

@@ -3,6 +3,7 @@
 namespace Ami\Eye\Models;
 
 use Ami\Eye\Support\Period;
+use Carbon\Carbon;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,6 +11,25 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static create(array $attributes)
+ * @method static firstOrCreate(array $checkAttributes, array $insertAttributes)
+ * @property int    visitable_id
+ * @property int    visitor_id
+ * @property string visitable_type
+ * @property string visitor_type
+ * @property string ip
+ * @property string url
+ * @property string method
+ * @property string device
+ * @property string browser
+ * @property string referer
+ * @property string platform
+ * @property string unique_id
+ * @property string useragent
+ * @property string collection
+ * @property string|array languages
+ * @property string|array request
+ * @property string|array headers
+ * @property Carbon|string viewed_at
  */
 class Visit extends Model
 {

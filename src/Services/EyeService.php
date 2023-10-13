@@ -29,6 +29,14 @@ class EyeService
     /**
      * @return Cacher
      */
+    public function viaDatabase(): Databaser
+    {
+        return new Databaser($this);
+    }
+
+    /**
+     * @return Cacher
+     */
     public function viaCache(): Cacher
     {
         return new Cacher($this);
