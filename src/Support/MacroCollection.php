@@ -25,6 +25,11 @@ class MacroCollection
         return $collection;
     }
 
+    public function whereCollection($macroThis , string $name)
+    {
+        return $macroThis->where('collection' , $name);
+    }
+
     public function whereVisitor($macroThis , Model $user)
     {
         return $macroThis->where('visitor_id' , $user->id)->where('visitor_type' , get_class($user));

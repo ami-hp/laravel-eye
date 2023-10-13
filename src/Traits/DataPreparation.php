@@ -109,7 +109,7 @@ trait DataPreparation
 
 
     /**
-     * EyeService constructor.
+     * constructor.
      * @throws Exception
      */
     protected function initializeDataPrepTrait()
@@ -119,10 +119,23 @@ trait DataPreparation
 
         $this->visitorCookieKey = $this->config['eye']['cookie']['key'] ?? "eye__visitor";
 
-        $this->viaDriver($this->config['eye']['default_driver']);
+        $this->setDriver($this->config['eye']['default_driver']);
         $this->setVisitor($this->request->user());
     }
 
+
+    /**
+     * Retrieve visitor (user)
+     *
+     * @param string|null $collection
+     * @return EyeService
+     */
+    public function setCollection(?string $name = null) : self
+    {
+        $this->collection = $name;
+
+        return $this;
+    }
 
     /**
      * Change the driver on the fly.
@@ -133,7 +146,7 @@ trait DataPreparation
      *
      * @throws Exception
      */
-    public function viaDriver(string $driver) : self
+    public function setDriver(string $driver) : self
     {
         $this->driver = $driver;
         $this->validateDriver();
@@ -272,19 +285,6 @@ trait DataPreparation
 
 
     /**
-     * Retrieve visitor (user)
-     *
-     * @param string|null $collection
-     * @return EyeService
-     */
-    public function collection(?string $collection = null) : self
-    {
-        $this->collection = $collection;
-
-        return $this;
-    }
-
-    /**
      * Get the unique ID that represents the visitor.
      * @throws BindingResolutionException
      */
@@ -303,6 +303,35 @@ trait DataPreparation
     }
 
     /**
+     * @throws Exception
+     */
+    public function getCurrentVisit(): Visit
+    {
+        $data = $this->prepareLog();
+
+        return new Visit($data);
+    }
+
+
+
+    /**
+     *
+     * Prorected Methods
+     * ------------
+     *
+     */
+
+    /**
+     * Retrieve visitor (user)
+     *
+     * @return Model|null
+     */
+    protected function getVisitorModel() : ?Model
+    {
+        return $this->visitor;
+    }
+
+    /**
      * Set visitor (user)
      *
      * @param Model|null $user
@@ -317,32 +346,12 @@ trait DataPreparation
     }
 
     /**
-     * Retrieve visitor (user)
-     *
-     * @return Model|null
-     */
-    protected function getVisitorModel() : ?Model
-    {
-        return $this->visitor;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getCurrentVisit(): Visit
-    {
-        $data = $this->prepareLog();
-
-        return new Visit($data);
-    }
-
-    /**
      * Set visitor (user)
      *
      * @param Model|null $post
      * @return $this
      */
-    public function setVisitable(?Model $post = null) : self
+    protected function setVisitable(?Model $post = null) : self
     {
         $this->visitable = $post;
 
