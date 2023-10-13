@@ -313,6 +313,33 @@ trait DataPreparation
     }
 
 
+    /**
+     * Set visitor (user)
+     *
+     * @param Model|null $user
+     *
+     * @return $this
+     */
+    public function setVisitor(?Model $user = null) : self
+    {
+        $this->visitor = $user;
+
+        return $this;
+    }
+
+    /**
+     * Set visitor (user)
+     *
+     * @param Model|null $post
+     * @return $this
+     */
+    public function setVisitable(?Model $post = null) : self
+    {
+        $this->visitable = $post;
+
+        return $this;
+    }
+
 
     /**
      *
@@ -329,33 +356,6 @@ trait DataPreparation
     protected function getVisitorModel() : ?Model
     {
         return $this->visitor;
-    }
-
-    /**
-     * Set visitor (user)
-     *
-     * @param Model|null $user
-     *
-     * @return $this
-     */
-    protected function setVisitor(?Model $user = null) : self
-    {
-        $this->visitor = $user;
-
-        return $this;
-    }
-
-    /**
-     * Set visitor (user)
-     *
-     * @param Model|null $post
-     * @return $this
-     */
-    protected function setVisitable(?Model $post = null) : self
-    {
-        $this->visitable = $post;
-
-        return $this;
     }
 
     /**

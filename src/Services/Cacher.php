@@ -114,19 +114,9 @@ class Cacher implements DataManagementInterface
 
         } else {
 
-            $visits->chunk(1000)->each(function ($chunk) {
-                $data = $chunk->map(function ($visit) {
-                    $visit->request   = json_encode($visit->request);
-                    $visit->languages = json_encode($visit->languages);
-                    $visit->headers   = json_encode($visit->headers);
-                    return $visit->toArray();
-                })->toArray();
-
-                Visit::query()->insert($data);
-            });
+            self::insert($visits , 1000);
 
         }
-
 
         //'queue:work'
 
@@ -189,5 +179,20 @@ class Cacher implements DataManagementInterface
     protected function eye(): EyeService
     {
         return $this->eye;
+    }
+
+    public static function insert($visits , int $chunkNum)
+    {
+        $visits->chunk($chunkNum)->each(function ($chunk) {
+            $data = $chunk->map(function ($visit) {
+                $visit->request   = json_encode($visit->request);
+                $visit->languages = json_encode($visit->languages);
+                $visit->headers   = json_encode($visit->headers);
+                return $visit->toArray();
+            })->toArray();
+
+            //merged all the queries into one
+            Visit::query()->insert($data);
+        });
     }
 }
