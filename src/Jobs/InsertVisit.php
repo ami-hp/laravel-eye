@@ -2,8 +2,6 @@
 
 namespace Ami\Eye\Jobs;
 
-use Ami\Eye\Models\Visit;
-use Ami\Eye\Services\Cacher;
 use Ami\Eye\Services\Databaser;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -23,7 +21,7 @@ class InsertVisit implements ShouldQueue
 
     protected $once = false;
 
-    public function __construct($visit, $visitable, $visitor, $once)
+    public function __construct(array $visit, $visitable, $visitor, $once)
     {
         $this->once      = $once;
         $this->visit     = $visit;

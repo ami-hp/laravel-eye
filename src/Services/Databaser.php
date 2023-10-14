@@ -64,16 +64,16 @@ class Databaser implements DataManagementInterface
 
         if ($visitable !== null) $this->eye()->setVisitable($visitable);
 
-        if (!$this->shouldRecord($once)) return false;
+        if (!$this->shouldRecord()) return false;
 
         if($once || $this->once) $once = true;
 
         $visit = $this->eye()->getCurrentVisit();
 
         if($this->eye()->config['eye']['queue']){
-            Queue::push(new InsertVisit($visit, $visitable, $visitor, $once));
+            Queue::push(new InsertVisit($visit->toArray(), $visitable, $visitor, $once));
         } else {
-            self::insert($visit, $visitable, $visitor, $once);
+            self::insert($visit->toArray(), $visitable, $visitor, $once);
         }
 
 
@@ -83,7 +83,7 @@ class Databaser implements DataManagementInterface
     /**
      * @throws Exception
      */
-    protected function shouldRecord(bool $once = false): bool
+    protected function shouldRecord(): bool
     {
         // If ignore bots is true and the current visitor is a bot, return false
         if ($this->eye()->config['eye']['ignore_bots'] && $this->eye()->detector->isCrawler()) {
@@ -95,7 +95,7 @@ class Databaser implements DataManagementInterface
 
     /**
      * Deprecated
-     * @return bool
+     * @return Databaser
      * @throws Exception
      */
     private function shouldOnce() : self
@@ -123,9 +123,15 @@ class Databaser implements DataManagementInterface
         return $this;
     }
 
-    public static function insert(Visit $visit , $visitable = null , $visitor = null , $once = false)
+    /**
+     * @param array $visitArray
+     * @param null  $visitable
+     * @param null  $visitor
+     * @param bool  $once
+     * @return mixed
+     */
+    public static function insert(array $visitArray , $visitable = null , $visitor = null , $once = false)
     {
-        $visitArray = $visit->toArray();
 
         if ($once) {
 
@@ -147,7 +153,7 @@ class Databaser implements DataManagementInterface
             if ($visitor !== null && method_exists($visitor, 'visitLogs')) {
                 $visit = $visitor->visitLogs()->create($visitArray);
             } else {
-                $visit->save();
+                $visit = Visit::create($visitArray);
             }
         }
 
