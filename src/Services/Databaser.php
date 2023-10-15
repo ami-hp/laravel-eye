@@ -44,7 +44,7 @@ class Databaser implements DataManagementInterface
 
         $query = $this->query;
 
-        if($visitable = $this->eye()->visitable)
+        if($visitable = $this->eye()->getVisitableModel())
             $this->query = $query->whereVisitable($visitable);
         else
             $this->query = $query->whereUrl($this->eye()->url());

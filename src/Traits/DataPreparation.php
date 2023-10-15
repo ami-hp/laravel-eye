@@ -322,20 +322,12 @@ trait DataPreparation
         return $this;
     }
 
-
-    /**
-     *
-     * Prorected Methods
-     * ------------
-     *
-     */
-
     /**
      * Retrieve visitor (user)
      *
      * @return Model|null
      */
-    protected function getVisitorModel() : ?Model
+    public function getVisitorModel() : ?Model
     {
         return $this->visitor;
     }
@@ -345,11 +337,17 @@ trait DataPreparation
      *
      * @return Model|null
      */
-    protected function getVisitableModel() : ?Model
+    public function getVisitableModel() : ?Model
     {
         return $this->visitable;
     }
 
+    /**
+     *
+     * Prorected Methods
+     * ------------
+     *
+     */
 
     /**
      * Prepare log's data.
