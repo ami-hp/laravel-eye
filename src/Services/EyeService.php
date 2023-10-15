@@ -193,9 +193,12 @@ class EyeService implements DataManagementInterface
     }
 
     /**
+     * @param bool       $once
+     * @param Model|null $visitable
+     * @param Model|null $visitor
      * @return Exception
      */
-    public function record(): Exception
+    public function record(bool $once = false, ?Model $visitable = null, ?Model $visitor = null)
     {
         return new Exception('This method is not Available');
     }
