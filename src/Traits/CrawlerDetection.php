@@ -3,8 +3,8 @@
 namespace Ami\Eye\Traits;
 
 use Ami\Eye\Contracts\UserAgentParser;
-use Ami\Eye\Drivers\JenssegersAgent;
-use Ami\Eye\Drivers\UAParser;
+use Ami\Eye\Parsers\JenssegersAgent;
+use Ami\Eye\Parsers\UAParser;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Services\EyeService;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;

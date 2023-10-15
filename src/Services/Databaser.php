@@ -8,6 +8,7 @@ use Ami\Eye\Models\Visit;
 use Ami\Eye\Support\Period;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Queue;
 
@@ -16,28 +17,56 @@ class Databaser implements DataManagementInterface
 
     protected $eye;
 
+    protected $query;
+
     protected $once = false;
-
-    public $period = null;
-
 
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
+        $this->query = Visit::query();
+        $this->query();
     }
 
-    protected function eye(): EyeService
+    /**
+     * @return Builder
+     */
+    public function queryInit(): Builder
     {
-        return $this->eye;
+        return Visit::query();
     }
 
-    public function period(Period $period): self
+    /**
+     * @return $this
+     */
+    public function query() : self
     {
-        $this->period = $period;
+
+        $query = $this->query;
+
+        if($visitable = $this->eye()->visitable)
+            $this->query = $query->whereVisitable($visitable);
+        else
+            $this->query = $query->whereUrl($this->eye()->url());
+
 
         return $this;
     }
 
+    /**
+     * @param Period $period
+     * @return $this
+     */
+    public function period(Period $period): self
+    {
+        $this->query = $this->query->withInPeriod($period);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
     public function once(): self
     {
         $this->once = true;
@@ -45,20 +74,51 @@ class Databaser implements DataManagementInterface
         return $this;
     }
 
-    public function query(): Builder
+    /**
+     * @param string $column
+     * @return $this
+     */
+    public function unique(string $column = 'unique_id'): self
     {
-        return Visit::query();
+
+        $this->query = $this->query->distinct($column);
+
+        return $this;
     }
 
+    /**
+     * @param string|null $name
+     * @return $this
+     */
+    public function collection(?string $name = null) : self
+    {
+
+        $this->query = $this->query->whereCollection($name);
+
+        return $this;
+    }
+
+    /**
+     * @return Builder[]|Collection
+     */
     public function get()
     {
-
+        return $this->query->get();
     }
+
+    /**
+     * @return int
+     */
+    public function count() : int
+    {
+        return $this->query->count();
+    }
+
 
     /**
      * @throws Exception
      */
-    public function record(?Model $visitable = null, ?Model $visitor = null, bool $once = false)
+    public function record(bool $once = false , ?Model $visitable = null, ?Model $visitor = null)
     {
         if ($visitor !== null) $this->eye()->setVisitor($visitor);
 
@@ -81,6 +141,18 @@ class Databaser implements DataManagementInterface
     }
 
     /**
+     * Protected Methods
+     * ------------------
+     */
+
+    /**
+     * @return EyeService
+     */
+    protected function eye(): EyeService
+    {
+        return $this->eye;
+    }
+    /**
      * @throws Exception
      */
     protected function shouldRecord(): bool
@@ -92,6 +164,11 @@ class Databaser implements DataManagementInterface
 
         return true;
     }
+
+    /**
+     * Private Methods
+     * ------------------
+     */
 
     /**
      * Deprecated
@@ -124,13 +201,18 @@ class Databaser implements DataManagementInterface
     }
 
     /**
+     * Static Methods
+     * ----------------
+     */
+
+    /**
      * @param array $visitArray
      * @param null  $visitable
      * @param null  $visitor
      * @param bool  $once
      * @return mixed
      */
-    public static function insert(array $visitArray , $visitable = null , $visitor = null , $once = false)
+    public static function insert(array $visitArray , $visitable = null , $visitor = null , bool $once = false)
     {
 
         if ($once) {

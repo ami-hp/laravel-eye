@@ -5,7 +5,7 @@ return [
     /**
      * name of the table which visit records should save in
      */
-    'table_name' =>  'ami_eye_visits',
+    'table_name' =>  'eye_visits',
 
 
     /*
@@ -44,18 +44,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Driver
+    | Default Parser
     |--------------------------------------------------------------------------
     |
-    | This value determines which of the following driver to use.
-    | You can switch to a different driver at runtime.
+    | This value determines which of the following parser to use.
+    | You can switch to a different parser at runtime.
     | you can choose between:
     | ► jenssegers
     | ► UAParser
     |
     */
 
-    'default_driver' => 'jenssegers',
+    'default_parser' => 'jenssegers',
 
     /*
      | if you change ignore_bots to False

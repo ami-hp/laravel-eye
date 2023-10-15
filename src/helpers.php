@@ -1,6 +1,7 @@
 <?php
 
 use Ami\Eye\Services\EyeService;
+use Illuminate\Database\Eloquent\Model;
 
 if (!function_exists('eye')) {
     /**
@@ -8,8 +9,14 @@ if (!function_exists('eye')) {
      *
      * @return EyeService
      */
-    function eye()
+    function eye(?Model $visitable = null): EyeService
     {
-        return app('ami-visit-cacher');
+        $eye = new EyeService();
+
+        if($visitable){
+            $eye->setVisitable($visitable);
+        }
+
+        return $eye;
     }
 }

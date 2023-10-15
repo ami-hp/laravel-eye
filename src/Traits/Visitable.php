@@ -26,6 +26,6 @@ trait Visitable
      */
     public function createVisitLog(?Model $visitor)
     {
-        return app('shetabit-visitor')->setVisitor($visitor)->visit($this);
+        return app('ami-visitor-cacher')->setVisitor($visitor)->record($this);
     }
 }

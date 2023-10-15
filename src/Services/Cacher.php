@@ -17,16 +17,17 @@ class Cacher implements DataManagementInterface
 
     public $cache_name;
 
-    public $cached_visits;
+    protected $eye;
 
-    public $eye;
+    protected $cached_visits;
 
-    public $period = null;
+    protected $period = null;
 
-    /**
-     * @var bool
-     */
-    private $once = false;
+    protected $unique = null;
+
+    protected $once = false;
+
+    protected $collection;
 
     public function __construct(EyeService $eye)
     {
@@ -35,16 +36,11 @@ class Cacher implements DataManagementInterface
         $this->cached_visits = Cache::get($this->cache_name) ?? collect();
     }
 
+
     /**
-     * @return bool
+     * @param Period $period
+     * @return $this
      */
-    public function forget(): bool
-    {
-        $this->cached_visits = collect();
-
-        return Cache::forget($this->cache_name);
-    }
-
     public function period(Period $period): self
     {
         $this->period = $period;
@@ -52,7 +48,33 @@ class Cacher implements DataManagementInterface
         return $this;
     }
 
+    /**
+     * Which column should have unique value
+     * @param string $column
+     * @return $this
+     */
+    public function unique(string $column = 'unique_id'): self
+    {
+        $this->unique = $column;
 
+        return $this;
+    }
+
+    /**
+     * from collection column
+     * @param string|null $name
+     * @return $this
+     */
+    public function collection(?string $name = null): self
+    {
+        $this->collection = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
     public function once(): self
     {
         $this->once = true;
@@ -67,12 +89,18 @@ class Cacher implements DataManagementInterface
     {
         if(!$this->cached_visits) $this->cached_visits = collect();
 
-        if($this->period !== null)
-            return $this->cached_visits->period($this->period);
+        $get =  $this->cached_visits;
 
-        return $this->cached_visits;
+        return $this->query($get);
     }
 
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        return $this->get()->count();
+    }
 
     /**
      * Create a visit log.
@@ -83,7 +111,7 @@ class Cacher implements DataManagementInterface
      * @return Visit|bool
      * @throws Exception
      */
-    public function record(?Model $visitable = null , ?Model $visitor = null, bool $once = false)
+    public function record(bool $once = false , ?Model $visitable = null , ?Model $visitor = null)
     {
         if ($visitor !== null) $this->eye()->setVisitor($visitor);
 
@@ -101,6 +129,18 @@ class Cacher implements DataManagementInterface
     }
 
     /**
+     * Delete Cache
+     * @return bool
+     */
+    public function forget(): bool
+    {
+        $this->cached_visits = collect();
+
+        return Cache::forget($this->cache_name);
+    }
+
+    /**
+     * Insert all Visits in Cache to Database
      * @return bool
      */
     public function pushCacheToDatabase() : bool
@@ -123,8 +163,32 @@ class Cacher implements DataManagementInterface
         return $this->forget();
     }
 
+    /**
+     * Protected Methods
+     * -----------------
+     */
 
     /**
+     * Adds conditions to get
+     * @param Collection $get
+     * @return Collection
+     */
+    protected function query(Collection $get)
+    {
+        if($this->period !== null)
+            $get = $get->period($this->period);
+
+        if($this->unique !== null)
+            $get = $get->unique($this->unique);
+
+        if($this->collection !== null)
+            $get = $get->whereCollection($this->collection);
+
+        return $get;
+    }
+
+    /**
+     * Gets Cache and insers a new Visit to it
      * @param Visit $visit
      * @return Visit
      */
@@ -142,6 +206,7 @@ class Cacher implements DataManagementInterface
     }
 
     /**
+     * Checks if the records reached to the maximum in config or not
      * @return bool
      */
     protected function maxedOut(): bool
@@ -153,6 +218,7 @@ class Cacher implements DataManagementInterface
     }
 
     /**
+     * Checks if the record should happen or not
      * @throws Exception
      */
     protected function shouldRecord(bool $once = false): bool
@@ -181,6 +247,16 @@ class Cacher implements DataManagementInterface
         return $this->eye;
     }
 
+    /**
+     * Static Method
+     * -------------
+     */
+
+    /**
+     * @param     $visits
+     * @param int $chunkNum
+     * @return void
+     */
     public static function insert($visits , int $chunkNum)
     {
         $visits->chunk($chunkNum)->each(function ($chunk) {

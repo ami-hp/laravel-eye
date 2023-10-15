@@ -8,8 +8,14 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
+ * @method collection(string $collection)
+ * @method whereVisitor(Model $visitor)
+ * @method whereVisitable(Model $visitable)
+ * @method whereUrl(string $url)
+ * @method withInPeriod(Period $period)
  * @method static create(array $attributes)
  * @method static firstOrCreate(array $checkAttributes, array $insertAttributes)
  * @property int    visitable_id
@@ -82,14 +88,15 @@ class Visit extends Model
         'request'   => 'array',
         'languages' => 'array',
         'headers'   => 'array',
+        'viewed_at' => 'datetime:Y-m-d H:i:s'
     ];
 
     /**
      * Get the owning visitable model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo
      */
-    public function visitable()
+    public function visitable(): MorphTo
     {
         return $this->morphTo('visitable');
     }
@@ -97,9 +104,9 @@ class Visit extends Model
     /**
      * Get the owning user model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo
      */
-    public function visitor()
+    public function visitor(): MorphTo
     {
         return $this->morphTo('visitor');
     }
@@ -133,9 +140,37 @@ class Visit extends Model
      * @param  string|null $collection
      * @return Builder
      */
-    public function scopeCollection(Builder $query, string $collection = null): Builder
+    public function scopeWhereCollection(Builder $query, string $collection = null): Builder
     {
         return $query->where('collection', $collection);
+    }
+
+    /**
+     * Scope a query to only include views withing the collection.
+     *
+     * @param Builder $query
+     * @param Model   $visitable
+     * @return Builder
+     */
+    public function scopeWhereVisitable(Builder $query, Model $visitable): Builder
+    {
+        return $query
+            ->where('visitable_id'  , $visitable->id)
+            ->where('visitable_type', get_class($visitable));
+    }
+
+    /**
+     * Scope a query to only include views withing the collection.
+     *
+     * @param Builder $query
+     * @param Model   $visitor
+     * @return Builder
+     */
+    public function scopeWhereVisitor(Builder $query, Model $visitor): Builder
+    {
+        return $query
+            ->where('visitor_id'  , $visitor->id)
+            ->where('visitor_type', get_class($visitor));
     }
 }
 

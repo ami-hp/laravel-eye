@@ -6,9 +6,6 @@ namespace Ami\Eye\Services;
 use Ami\Eye\Traits\CrawlerDetection;
 use Ami\Eye\Traits\DataPreparation;
 use Exception;
-use Illuminate\Container\Container;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Model;
 
 
 class EyeService
@@ -41,6 +38,5 @@ class EyeService
     {
         return new Cacher($this);
     }
-
 
 }

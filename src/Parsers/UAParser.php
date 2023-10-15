@@ -1,6 +1,6 @@
 <?php
 
-namespace Ami\Eye\Drivers;
+namespace Ami\Eye\Parsers;
 
 use UAParser\Parser;
 use Illuminate\Http\Request;

@@ -3,8 +3,8 @@
 namespace Ami\Eye\Traits;
 
 use Ami\Eye\Contracts\UserAgentParser;
-use Ami\Eye\Drivers\JenssegersAgent;
-use Ami\Eye\Drivers\UAParser;
+use Ami\Eye\Parsers\JenssegersAgent;
+use Ami\Eye\Parsers\UAParser;
 use Ami\Eye\Models\Visit;
 use Ami\Eye\Services\EyeService;
 use Exception;
@@ -34,18 +34,18 @@ trait DataPreparation
     protected $collection;
 
     /**
-     * Driver name.
+     * parser name.
      *
      * @var string
      */
-    protected $driver;
+    protected $parser;
 
     /**
-     * Driver instance.
+     * parser instance.
      *
      * @var object
      */
-    protected $driverInstance;
+    protected $parserInstance;
 
     /**
      * Request instance.
@@ -69,13 +69,6 @@ trait DataPreparation
     protected $visitable;
 
     /**
-     * The Cache Key where the views will be stored
-     *
-     * @var string
-     */
-
-
-    /**
      * Type of storing the views
      * cache, database
      *
@@ -92,17 +85,17 @@ trait DataPreparation
 
     /*
     |--------------------------------------------------------------------------
-    | List of Drivers
+    | List of parsers
     |--------------------------------------------------------------------------
     |
     |
-    | You can create your own driver if you like and add the
-    | config in the drivers array and the class to use for
+    | You can create your own parser if you like and add the
+    | config in the parsers array and the class to use for
     | here with the same name. You will have to implement
-    | Ami\Eye\Contracts\UserAgentParser in your driver.
+    | Ami\Eye\Contracts\UserAgentParser in your parser.
     |
     */
-    public $drivers = [
+    public $parsers = [
         'jenssegers' => JenssegersAgent::class,
         'UAParser'   => UAParser::class,
     ];
@@ -119,7 +112,7 @@ trait DataPreparation
 
         $this->visitorCookieKey = $this->config['eye']['cookie']['key'] ?? "eye__visitor";
 
-        $this->setDriver($this->config['eye']['default_driver']);
+        $this->byParser($this->config['eye']['default_parser']);
         $this->setVisitor($this->request->user());
     }
 
@@ -127,7 +120,7 @@ trait DataPreparation
     /**
      * Retrieve visitor (user)
      *
-     * @param string|null $collection
+     * @param string|null $name
      * @return EyeService
      */
     public function setCollection(?string $name = null) : self
@@ -138,18 +131,18 @@ trait DataPreparation
     }
 
     /**
-     * Change the driver on the fly.
+     * Change the parser on the fly.
      *
-     * @param string $driver
+     * @param string $parser
      *
      * @return $this
      *
      * @throws Exception
      */
-    public function setDriver(string $driver) : self
+    public function byParser(string $parser) : self
     {
-        $this->driver = $driver;
-        $this->validateDriver();
+        $this->parser = $parser;
+        $this->validateParser();
 
         return $this;
     }
@@ -233,7 +226,7 @@ trait DataPreparation
      */
     public function device() : string
     {
-        return $this->getDriverInstance()->device();
+        return $this->getParserInstance()->device();
     }
 
     /**
@@ -245,7 +238,7 @@ trait DataPreparation
      */
     public function platform() : string
     {
-        return $this->getDriverInstance()->platform();
+        return $this->getParserInstance()->platform();
     }
 
     /**
@@ -257,7 +250,7 @@ trait DataPreparation
      */
     public function browser() : string
     {
-        return $this->getDriverInstance()->browser();
+        return $this->getParserInstance()->browser();
     }
 
     /**
@@ -269,18 +262,7 @@ trait DataPreparation
      */
     public function languages() : array
     {
-        return $this->getDriverInstance()->languages();
-    }
-
-    /**
-     * Retrieve SessionId.
-     * no secure for cache.
-     * better to use for db or redis
-     * @return ?string
-     */
-    public function sessionId(): ?string
-    {
-        return Request::getSession()->getId();
+        return $this->getParserInstance()->languages();
     }
 
 
@@ -417,56 +399,74 @@ trait DataPreparation
     }
 
     /**
-     * Retrieve current driver instance or generate new one.
+     * Retrieve current parser instance or generate new one.
      *
      * @return mixed|object
      *
      * @throws Exception
      */
-    protected function getDriverInstance()
+    protected function getParserInstance()
     {
-        if (!empty($this->driverInstance)) {
-            return $this->driverInstance;
+        if (!empty($this->parserInstance)) {
+            return $this->parserInstance;
         }
 
-        return $this->getFreshDriverInstance();
+        return $this->getFreshParserInstance();
     }
 
     /**
-     * Get new driver instance
+     * Get new parser instance
      *
      * @throws Exception
      */
-    protected function getFreshDriverInstance()
+    protected function getFreshParserInstance()
     {
-        $this->validateDriver();
+        $this->validateParser();
 
-        $driverClass = $this->drivers[$this->driver];
+        $parserClass = $this->parsers[$this->parser];
 
-        return Container::getInstance()->make($driverClass);
+        return Container::getInstance()->make($parserClass);
     }
 
     /**
-     * Validate driver.
+     * Validate parser.
      *
      * @throws Exception
      */
-    protected function validateDriver()
+    protected function validateParser()
     {
-        if (empty($this->driver)) {
-            throw new Exception('Driver not selected or default driver does not exist.');
+        if (empty($this->parser)) {
+            throw new Exception('Parser not selected or default parser does not exist.');
         }
 
-        $driverClass = $this->drivers[$this->driver];
+        $parserClass = $this->parsers[$this->parser];
 
-        if (empty($driverClass) || !class_exists($driverClass)) {
-            throw new Exception('Driver not found in config file. Try updating the package.');
+        if (empty($parserClass) || !class_exists($parserClass)) {
+            throw new Exception('Parser not found in config file. Try updating the package.');
         }
 
-        $reflect = new ReflectionClass($driverClass);
+        $reflect = new ReflectionClass($parserClass);
 
         if (!$reflect->implementsInterface(UserAgentParser::class)) {
-            throw new Exception("Driver must be an instance of Contracts\Driver.");
+            throw new Exception("Parser must be an instance of Contracts\Parser.");
         }
+    }
+
+    /**
+     * Private Methods
+     * --------------
+     */
+
+    /**
+     * deprecated
+     * -----
+     * Retrieve SessionId.
+     * no secure for cache.
+     * better to use for db or redis
+     *
+     */
+    private function sessionId(): ?string
+    {
+        return Request::getSession()->getId();
     }
 }
