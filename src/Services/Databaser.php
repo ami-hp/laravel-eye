@@ -8,8 +8,8 @@ use Ami\Eye\Models\Visit;
 use Ami\Eye\Support\Period;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
 
 class Databaser implements DataManagementInterface
@@ -112,11 +112,11 @@ class Databaser implements DataManagementInterface
     }
 
     /**
-     * @return Builder[]|Collection
+     * @return Collection
      */
-    public function get()
+    public function get(): Collection
     {
-        return $this->query->get();
+        return $this->query->get()->collect();
     }
 
     /**

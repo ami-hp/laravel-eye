@@ -69,14 +69,6 @@ trait DataPreparation
     protected $visitable;
 
     /**
-     * Type of storing the views
-     * cache, database
-     *
-     * @var string
-     */
-    protected $storage;
-
-    /**
      * A unique cookie for user
      *
      * @var string
