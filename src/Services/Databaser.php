@@ -65,16 +65,6 @@ class Databaser implements DataManagementInterface
     }
 
     /**
-     * @return $this
-     */
-    public function once(): self
-    {
-        $this->once = true;
-
-        return $this;
-    }
-
-    /**
      * @param string $column
      * @return $this
      */
@@ -94,6 +84,29 @@ class Databaser implements DataManagementInterface
     {
 
         $this->query = $this->query->whereCollection($name);
+        $this->eye()->setCollection($name);
+
+        return $this;
+    }
+
+    /**
+     * @param Model|null $user
+     * @return self
+     */
+    public function visitor(?Model $user = null): self
+    {
+        $this->eye()->setVisitor($user);
+
+        return $this;
+    }
+
+    /**
+     * @param Model|null $post
+     * @return self
+     */
+    public function visitable(?Model $post = null): self
+    {
+        $this->eye()->setVisitable($post);
 
         return $this;
     }
@@ -114,6 +127,16 @@ class Databaser implements DataManagementInterface
         return $this->query->count();
     }
 
+
+    /**
+     * @return $this
+     */
+    public function once(): self
+    {
+        $this->once = true;
+
+        return $this;
+    }
 
     /**
      * @throws Exception

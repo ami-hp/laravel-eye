@@ -68,16 +68,29 @@ class Cacher implements DataManagementInterface
     public function collection(?string $name = null): self
     {
         $this->collection = $name;
+        $this->eye()->setCollection($name);
 
         return $this;
     }
 
     /**
-     * @return $this
+     * @param Model|null $user
+     * @return self
      */
-    public function once(): self
+    public function visitor(?Model $user = null): self
     {
-        $this->once = true;
+        $this->eye()->setVisitor($user);
+
+        return $this;
+    }
+
+    /**
+     * @param Model|null $post
+     * @return self
+     */
+    public function visitable(?Model $post = null): self
+    {
+        $this->eye()->setVisitable($post);
 
         return $this;
     }
@@ -100,6 +113,16 @@ class Cacher implements DataManagementInterface
     public function count(): int
     {
         return $this->get()->count();
+    }
+
+    /**
+     * @return $this
+     */
+    public function once(): self
+    {
+        $this->once = true;
+
+        return $this;
     }
 
     /**
@@ -148,15 +171,11 @@ class Cacher implements DataManagementInterface
         $visits = $this->cached_visits;
 
         //insert to database
-        if($this->eye()->config['eye']['queue']){
-
+        if($this->eye()->config['eye']['queue'])
             Queue::push(new ProcessVisits($visits , 1000));
-
-        } else {
-
+        else
             self::insert($visits , 1000);
 
-        }
 
         //'queue:work'
 

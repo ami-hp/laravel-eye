@@ -36,6 +36,27 @@ interface DataManagementInterface
     public function collection(?string $name = null);
 
 
+    /**
+     * Set Methods
+     * -----------
+     * - visitor   : set visitor model in Visit
+     * - visitable : set visitable model in Visit
+     *
+     */
+
+    /**
+     * Set Visitor model in Visit
+     * @param Model|null $user
+     * @return mixed
+     */
+    public function visitor(?Model $user = null) ;
+
+    /**
+     * Set visitable model in Visit
+     * @param Model|null $post
+     * @return mixed
+     */
+    public function visitable(?Model $post = null);
 
 
     /**
@@ -56,7 +77,6 @@ interface DataManagementInterface
      * @return int
      */
     public function count(): int;
-
 
 
 
