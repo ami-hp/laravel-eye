@@ -48,13 +48,9 @@ class EyeServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/../../database/migrations/create_visits_table.php.stub'
-                => database_path("/migrations/{$timestamp}_create_visits_table.php"),
+                => database_path("/migrations/{$timestamp}_create_eye_visits_table.php"),
             ], 'migrations');
         }
-
-//        $this->publishes([
-//            __DIR__ . '/database/migrations' => database_path("/migrations/"),
-//        ] , 'migration');
 
         $this->publishes([
             __DIR__ . '/../../config/eye.php' => config_path('/eye.php'),

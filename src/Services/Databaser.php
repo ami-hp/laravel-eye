@@ -23,7 +23,7 @@ class Databaser implements DataManagementInterface
 
     private $unique = '*';
 
-    private $visitor = false;
+    private $visitor = true;
 
     private $visitable = true;
 
@@ -126,7 +126,7 @@ class Databaser implements DataManagementInterface
     {
         if($post === false) //Disables Where
             $this->visitable = false;
-        else // Enables Where Post for Model or Url for Null
+        elseif($post instanceof Model || $post === null) // Enables Where Post for Model or Url for Null
             $this->eye()->setVisitable($post);
 
         return $this;

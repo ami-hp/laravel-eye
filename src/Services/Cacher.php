@@ -29,7 +29,9 @@ class Cacher implements DataManagementInterface
 
     protected $collection;
 
-    private $visitor = false;
+    private $visitor = true;
+
+    private $visitable = false;
 
     public function __construct(EyeService $eye)
     {
@@ -97,7 +99,7 @@ class Cacher implements DataManagementInterface
     {
         if($post === false) //Disables Where
             $this->visitable = false;
-        else // Enables Where Post for Model or Url for Null
+        elseif($post instanceof Model || $post === null) // Enables Where Post for Model or Url for Null
             $this->eye()->setVisitable($post);
 
         return $this;
