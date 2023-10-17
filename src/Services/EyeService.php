@@ -28,10 +28,14 @@ class EyeService implements DataManagementInterface
     /**
      * @throws Exception
      */
-    public function __construct()
+    public function __construct(?Model $visitable = null)
     {
         $this->initializeDataPrepTrait();
         $this->initializeCrawlerTrait();
+
+        if($visitable){
+            $this->setVisitable($visitable);
+        }
 
         $this->cache    = $this->viaCache();
         $this->database = $this->viaDatabase();
@@ -176,7 +180,17 @@ class EyeService implements DataManagementInterface
      */
     public function count(): int
     {
-        return $this->get()->count();
+        if (in_array("cache", $this->storage))
+            $cache = $this->cache->count();
+        else
+            $cache = 0;
+
+        if (in_array("database", $this->storage))
+            $database = $this->database->count();
+        else
+            $database = 0;
+
+        return $cache + $database;
     }
 
     /**

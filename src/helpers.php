@@ -8,15 +8,10 @@ if (!function_exists('eye')) {
      * Access visitor through helper.
      *
      * @return EyeService
+     * @throws Exception
      */
     function eye(?Model $visitable = null): EyeService
     {
-        $eye = new EyeService();
-
-        if($visitable){
-            $eye->setVisitable($visitable);
-        }
-
-        return $eye;
+        return new EyeService($visitable);
     }
 }
