@@ -192,7 +192,7 @@ class Databaser implements DataManagementInterface
      */
     public function truncate(): void
     {
-        Visit::query()->truncate();
+        $this->queryInit()->truncate();
     }
 
     /**
