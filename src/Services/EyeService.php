@@ -215,7 +215,31 @@ class EyeService implements DataManagementInterface
      */
     public function record(bool $once = false, ?Model $visitable = null, ?Model $visitor = null): Exception
     {
-        return new Exception('This method is not Available');
+        return new Exception('This method is not Available For General Uses');
+    }
+
+    /**
+     * @return void
+     */
+    public function truncate(): void
+    {
+        if (in_array("cache", $this->storage))
+            $this->cache    = $this->cache->truncate();
+
+        if (in_array("database", $this->storage))
+            $this->database = $this->database->truncate();
+    }
+
+    /**
+     * @return void
+     */
+    public function delete()
+    {
+        if (in_array("cache", $this->storage))
+            $this->cache->delete();
+
+        if (in_array("database", $this->storage))
+            $this->database->delete();
     }
 
 }

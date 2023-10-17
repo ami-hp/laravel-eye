@@ -29,9 +29,9 @@ class Cacher implements DataManagementInterface
 
     protected $collection;
 
-    private $visitor = true;
+    private $visitor = false;
 
-    private $visitable = false;
+    private $visitable = true;
 
     public function __construct(EyeService $eye)
     {
@@ -165,11 +165,26 @@ class Cacher implements DataManagementInterface
      * Delete Cache
      * @return bool
      */
-    public function forget(): bool
+    public function truncate(): bool
     {
         $this->cached_visits = collect();
 
         return Cache::forget($this->cache_name);
+    }
+
+    /**
+     * @return void
+     */
+    public function delete()
+    {
+        $cache = $this->cached_visits;
+        $selected = $this->get();
+
+        $this->cached_visits = $cache->reject(function ($value) use ($selected) {
+            return $selected->contains($value);
+        });
+
+        Cache::set($this->cache_name, $this->cached_visits);
     }
 
     /**

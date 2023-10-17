@@ -107,7 +107,7 @@ $ php artisan migrate
             $table->timestamp('viewed_at')->useCurrent();
         });
 ```
-
+-------
 # Methods
 
 ### To Set Visit Model Data
@@ -152,18 +152,21 @@ eye()->getVisitorModel(); // example: User Model
 eye()->getVisitableModel(); //example: Article Model
 ```
 
-### Methods to Specify Storing method
+### Choose Your Storing method
 > **NOTE**: If you don't use these methods, the package automatically uses all of storages
 ```php
 $eye = $eye->viaCache(); // meaning : only using cache
 $eye = $eye->viaDatabase(); // meaning : only using database
-// You Can Also Combine the result of storages that you choose
+```
+You Can Also Combine the result of storages that you choose:
+```php
 $eye = $eye->viaExcept('Redis'); // meaning: Not Redis 
 $eye = $eye->viaOnly('Cache' , 'Database'); // meaning: Not Redis
 ```
 
-## General Methods
-### period(Period $period)
+## General Methods (Interface)
+These Methods Work on `viaDatabase` and `viaCache` and any storing method that this package provides.
+### 1. period(Period $period)
 You can read all of Period Documentation in this Link: 
 [Cryildewit/Period](https://github.com/cyrildewit/eloquent-viewable/blob/master/README.md#between-two-datetimes)
 
@@ -174,7 +177,7 @@ $period = Period::create('2017-04-20', '2023-07-08');
 $eye = $eye->period($period);
 
 ```
-### unique(string $column = 'unique_id')
+### 2. unique(string $column = 'unique_id')
 This chain method will assist to get Unique values base on the column you need.
 * By default, it is set for unique_id .
 
@@ -183,14 +186,14 @@ This chain method will assist to get Unique values base on the column you need.
 $eye = $eye->unique('browser');
 ```
 
-### collection(?string $name = null)
+### 3. collection(?string $name = null)
 This chain method can help to get Visits or set collection for `Visit` Model.
 ```php
 //example
 $eye = $eye->collection('articles');
 ```
 
-### visitor(?Model $user = null , bool $whereMode = true)
+### 4. visitor(?Model $user = null , bool $whereMode = true)
 This chain method will replace visitor fields in `Visit` Model.
 * It is useful for getting the User's activity.
 By default `$whereMode` in true which means :
@@ -205,7 +208,7 @@ $eye = $eye->visitor($user , false); // to disable where() query methods
 ```
 
 
-### public function visitable(Model|null|bool $post = null)
+### 5. visitable(Model|null|bool $post = null)
 This chain method has two usages based on Argument:
 1. **Model or Null** : It will Replace value of `visitable_type` and `visitable_id` in `Visit` Model. For Fetching visits it will use `->where('visitable_type' , $type)->where('visitable_id' , $id)` 
 2. **Bool** False : IF ONLY false was given it will disable `where()` methods
@@ -217,35 +220,41 @@ $eye = $eye->visitable($post);
 //or
 $eye = $eye->visitable(false); // to disable where() query methods
 ```
+> **NOTE**: If where() is enabled and visitable is null , the packages works based on url.
 
-### get()
+### 6. get()
 It will Fetch Visits from database or cache with the help of the queries you specified (like above).
 ```php
 //example
 $eye = $eye->get();
 ```
 
-### count()
+### 7. count()
 It does the exact thing as `get()` does. but returns Integer.
 ```php
 //example
 $eye = $eye->count();
 ```
 > **NOTE:** If you don't specify one storing method ,`get()`and`count()` will fetch data from multiple storages and combines them.
->**example:**
->
+> 
+> **example:**
 > If `eye()->viaCache()->count()` returns 6 and `eye()->viaDatabase()->count()` returns 50, `eye()->count()` will return 56. 
 
 
-### once()
-This method will check if the visitor has a record from before, it will not record another one unill the user's cookie expires.
+### 8. once()
+This method will check if the visitor has a record from before, it will not record another one until the user's cookie expires.
+> **Note:** for `viaDatabase()` it only works with `count()` and not `get()`
 ```php
 //example
 $eye = $eye->once();
 ```
 
-### record(bool $once = false , ?Model $visitable = null, ?Model $visitor = null)
-
+### 9. record(bool $once = false , ?Model $visitable = null, ?Model $visitor = null)
+It will record the visit **ONLY** via the storing method you chose.
+you can also:
+- replace `once()` with its argument
+- replace visitable methods with its argument
+- replace visitor methods with its argument
 ```php
 //simple example
 $eye->record();
@@ -259,4 +268,269 @@ $eye->record(
         visitable : $post, // == ->setVisitable($post)
         visitor   : $user, // == ->setVisitor($user)
     ); 
+```
+### 10. truncate()
+removes all visits in storage
+```php
+$eye->truncate();
+```
+### 11. delete()
+removes all visits in storage
+```php
+$eye->delete();
+```
+
+## Exclusive Methods
+### Cache methods
+#### 1. forget(): bool
+```php
+eye()->viaCache()->forget();
+//equals to this
+Cache::forget(config('eye.cache.key'));
+```
+#### 2. pushCacheToDatabase() : bool
+You can push caches to database anytime you want
+```php
+eye()->viaCache()->pushCacheToDatabase();
+
+// it uses Visit::insert($cachedVisits)
+```
+#### 3. Macro methods
+This package automatically binds methods to Collection class
+```php
+$collection = Cache::get(config('eye.cache.key'));
+
+$collection->period(Period $period);
+$collection->whereUrl(string $url);
+$collection->whereVisitor(?Model $user);
+$collection->whereVisitable(?Model $post);
+$collection->whereCollection(string $name);
+$collection->whereVisitHappened(Visit $visit);
+```
+### Database methods
+#### 1. queryInit()
+You can write any query you want.
+```php
+eye()->viaDatabase()->queryInit();
+//equals to this
+Visit::query();
+```
+
+
+# Usage
+
+## Recording Visits
+
+> **Note:** *Recording Methods are applied for all storing methods, Therefore you can replace `viaCache` with other ones*.
+> > The only Method that does not have General Usage is `Record()`. It just didn't make sense to make one. Feel free comment if you needed.
+
+### 1. Record only for Url
+If you don't set visitable you can work with url
+```php
+//only Individual Usage
+eye()->viaCache()->record();
+```
+
+### 2. Record for Visitable Model
+ 
+```php
+$post = Post::findOrFail(1);
+
+//All of these lines return the same outcome.
+
+//Individual Usage
+eye($post)->viaCache()->record(); //Recommended
+//or
+eye()->setVisitable($post)->viaCache()->record();
+//or
+eye()->viaCache()->visitable($post)->record();
+//or
+eye()->viaCache()->record(visitable: $post);
+```
+
+### 3. Record with new Visitor Model
+ It will replace `auth()->user()`
+```php
+$user = User::findOrFail(1);
+
+//All of these lines return the same outcome.
+
+eye()->setVisitor($user)->viaCache()->record();
+//or
+eye()->viaCache()->visitor($user)->record(); //recommended
+//or
+eye()->viaCache()->record(visitor: $user);
+```
+
+### 4. Record with Collection
+
+ It will fill collection column
+
+```php
+$name = "name of collection";
+
+//All of these lines return the same outcome.
+
+eye()->setCollection($name)->viaCache()->record(); 
+//or
+eye()->viaCache()->collection($name)->record(); //Recommended
+```
+
+### 5. Record only once for a cookie
+ 
+```php
+//All of these lines return the same outcome.
+
+eye()->viaCache()->once()->record(); //Recommended 
+//or
+eye()->viaCache()->record(true);
+```
+## Fetching Visits
+
+### 1. Get/Count Where IS "Current Url"
+
+```php
+//General Usage
+eye()->get();
+-------------  
+eye()->count();
+
+//Individual Usage
+eye()->viaCache()->get();
+-------------  
+eye()->viaCache()->count();
+
+```
+### 2. Get/Count Where IS "Visitable Model"
+
+```php
+$post = Post::findOrFail(1);
+
+//General Usage
+eye($post)->get(); // Recommended
+//or  
+eye()->visitable($post)->get();
+//or  
+eye()->setVisitable($post)->get();
+-------------
+eye($post)->count(); // Recommended
+//or  
+eye()->visitable($post)->count();
+//or
+eye()->setVisitable($post)->get();
+
+
+//Individual Usage
+eye($post)->viaCache()->get(); // Recommended
+//or  
+eye()->viaCache()->visitable($post)->get();
+//or  
+eye()->setVisitable($post)->viaCache()->get();
+-------------
+eye($post)->viaCache()->count(); // Recommended
+//or  
+eye()->viaCache()->visitable($post)->count();
+//or
+eye()->setVisitable($post)->viaCache()->get();
+
+```
+
+
+### 3. Get/Count Where IS "Visitor Model"
+
+```php
+$user = User::findOrFail(1);// Null works too
+
+//General Usage
+eye()->visitor($user)->get();
+-------------
+eye()->visitor($user)->count();
+
+//Individual Usage
+eye()->viaCache()->visitor($user)->get();
+-------------
+eye()->viaCache()->visitor($user)->count();
+```
+
+### 4. Get/Count Where IS NOT "Visitor Model"
+
+```php
+$user = User::findOrFail(1);// Null works too
+
+//General Usage
+eye()->visitor($user, false)->get();
+-------------
+eye()->visitor($user, false)->count();
+
+//Individual Usage
+eye()->viaCache()->visitor($user, false)->get();
+-------------
+eye()->viaCache()->visitor($user, false)->count();
+```
+
+### 5. Get/Count Where IS "Collection"
+
+```php
+//General Usage
+eye()->collection('name of collection')->get();
+-------------
+eye()->collection('name of collection')->count();
+
+//Individual Usage
+eye()->viaCache()->collection('name of collection')->get();
+-------------
+eye()->viaCache()->collection('name of collection')->count();
+```
+
+### 6. Get/Count Where IS "Period"
+You can read all of Period Documentation in this Link:
+[Cryildewit/Period](https://github.com/cyrildewit/eloquent-viewable/blob/master/README.md#between-two-datetimes)
+```php
+$period = Period::create('2011-10' , '2023-10-17 12:00:00');// Null works too
+
+//General Usage
+eye()->period($period)->get();
+-------------
+eye()->period($period)->count();
+
+//Individual Usage
+eye()->viaCache()->period($period)->get();
+-------------
+eye()->viaCache()->period($period)->count();
+```
+
+### 7. Get/Count Where IS "Unique"
+> **NOTE:** This method is the only method that does not work for database `get()`
+It is best to use `count()`  
+```php
+$field = "column name";// Null works too
+
+//eye()->unique($field)->get(); //DOES NOT WORK properly
+//eye()->viaDatabase()->unique($field)->get() //DOES NOT WORK
+eye()->viaCache()->unique($field)->get() //WORKS
+-------------
+eye()->unique($field)->count();// recommended
+eye()->viaDatabase()->unique($field)->count();// WORKS
+eye()->viaCache()->unique($field)->count();// WORKS
+```
+
+## Removing Visits
+### 1. Remove ALL
+Removes Everything, Everywhere, All At Once
+```php
+//General Usage
+eye()->truncate();
+
+//Individual Usage
+eye()->viaCache()->truncate();
+```
+### 1. Remove Selected Visits
+Select the Visits by methods above then delete. examples:
+```php
+//General Usage
+eye()->collection($name)->visitable($post)->delete();
+
+//Individual Usage
+eye()->viaCache()->collection($name)->visitable($post)->delete();
+
 ```

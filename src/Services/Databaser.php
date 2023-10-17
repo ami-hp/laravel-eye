@@ -23,7 +23,7 @@ class Databaser implements DataManagementInterface
 
     private $unique = '*';
 
-    private $visitor = true;
+    private $visitor = false;
 
     private $visitable = true;
 
@@ -112,8 +112,7 @@ class Databaser implements DataManagementInterface
     {
         $this->eye()->setVisitor($user);
 
-        if($whereMode)
-            $this->query = $this->query->whereVisitor($this->eye()->getVisitorModel());
+        $this->visitor = $whereMode;
 
         return $this;
     }
@@ -186,6 +185,24 @@ class Databaser implements DataManagementInterface
 
 
         return $visit;
+    }
+
+    /**
+     * @return void
+     */
+    public function truncate(): void
+    {
+        Visit::query()->truncate();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function delete()
+    {
+        $this->query();
+
+        return $this->query->delete();
     }
 
     /**

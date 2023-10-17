@@ -103,4 +103,15 @@ interface DataManagementInterface
      */
     public function record(bool $once = false , ?Model $visitable = null , ?Model $visitor = null) ;
 
+
+    /**
+     * Removes All
+     */
+    public function truncate();
+
+    /**
+     * Remove the selected visits
+     * @return mixed
+     */
+    public function delete();
 }

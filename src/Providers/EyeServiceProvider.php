@@ -64,19 +64,23 @@ class EyeServiceProvider extends ServiceProvider
      */
     protected function registerMacroHelpers()
     {
-        Collection::macro('whereCollection', function (string $name) {
+        Collection::macro('whereCollection', function (string $name)
+        {
             return (new MacroCollection)->whereCollection($this , $name);
         });
 
-        Collection::macro('whereUrl', function (string $url) {
+        Collection::macro('whereUrl', function (string $url)
+        {
             return (new MacroCollection)->whereUrl($this , $url);
         });
 
-        Collection::macro('whereVisitor', function (?Model $user) {
+        Collection::macro('whereVisitor', function (?Model $user)
+        {
             return (new MacroCollection)->whereVisitor($this , $user);
         });
 
-        Collection::macro('whereVisitable', function (?Model $post) {
+        Collection::macro('whereVisitable', function (?Model $post)
+        {
             return (new MacroCollection)->whereVisitable($this , $post);
         });
 
