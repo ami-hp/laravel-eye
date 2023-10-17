@@ -21,6 +21,10 @@ class Databaser implements DataManagementInterface
 
     protected $once = false;
 
+    private $unique = '*';
+
+    private $visitor = false;
+
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
@@ -49,6 +53,9 @@ class Databaser implements DataManagementInterface
         else
             $this->query = $query->whereUrl($this->eye()->url());
 
+        if($this->visitor)
+            $this->query = $query->whereVisitor($this->eye()->getVisitorModel());
+
 
         return $this;
     }
@@ -71,7 +78,9 @@ class Databaser implements DataManagementInterface
     public function unique(string $column = 'unique_id'): self
     {
 
-        $this->query = $this->query->distinct($column);
+        $this->query = $this->query->distinct();
+
+        $this->unique = $column;
 
         return $this;
     }
@@ -91,11 +100,15 @@ class Databaser implements DataManagementInterface
 
     /**
      * @param Model|null $user
+     * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null): self
+    public function visitor(?Model $user = null , bool $whereMode = false): self
     {
         $this->eye()->setVisitor($user);
+
+        if($whereMode)
+            $this->query = $this->query->whereVisitor($this->eye()->getVisitorModel());
 
         return $this;
     }
@@ -124,7 +137,7 @@ class Databaser implements DataManagementInterface
      */
     public function count() : int
     {
-        return $this->query->count();
+        return $this->query->count($this->unique);
     }
 
 

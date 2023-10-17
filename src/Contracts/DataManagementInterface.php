@@ -49,7 +49,7 @@ interface DataManagementInterface
      * @param Model|null $user
      * @return mixed
      */
-    public function visitor(?Model $user = null) ;
+    public function visitor(?Model $user = null , bool $whereMode = false) ;
 
     /**
      * Set visitable model in Visit

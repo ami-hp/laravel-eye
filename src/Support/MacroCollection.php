@@ -25,19 +25,34 @@ class MacroCollection
         return $collection;
     }
 
+    public function whereUrl($macroThis , string $url)
+    {
+        return $macroThis->where('url' , $url);
+    }
+
     public function whereCollection($macroThis , string $name)
     {
         return $macroThis->where('collection' , $name);
     }
 
-    public function whereVisitor($macroThis , Model $user)
+    public function whereVisitable($macroThis , ?Model $post)
     {
-        return $macroThis->where('visitor_id' , $user->id)->where('visitor_type' , get_class($user));
+        $id    = $post ? $post->id        : null;
+        $model = $post ? get_class($post) : null;
+
+        return $macroThis
+            ->where('visitable_id'   , $id)
+            ->where('visitable_type' , $model);
     }
 
-    public function whereVisitable($macroThis , Model $post)
+    public function whereVisitor($macroThis , ?Model $user)
     {
-        return $macroThis->where('visitable_id' , $post->id)->where('visitable_type' , get_class($post));
+        $id    = $user ? $user->id        : null;
+        $model = $user ? get_class($user) : null;
+
+        return $macroThis
+            ->where('visitor_id'   , $id)
+            ->where('visitor_type' , $model);
     }
 
     public function whereVisitHappened($macroThis , Model $visit)

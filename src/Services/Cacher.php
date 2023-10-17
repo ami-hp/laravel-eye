@@ -29,6 +29,8 @@ class Cacher implements DataManagementInterface
 
     protected $collection;
 
+    private $visitor = false;
+
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
@@ -75,11 +77,14 @@ class Cacher implements DataManagementInterface
 
     /**
      * @param Model|null $user
+     * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null): self
+    public function visitor(?Model $user = null , bool $whereMode = false): self
     {
         $this->eye()->setVisitor($user);
+
+        $this->visitor = $whereMode;
 
         return $this;
     }
@@ -128,9 +133,9 @@ class Cacher implements DataManagementInterface
     /**
      * Create a visit log.
      *
+     * @param bool       $once
      * @param Model|null $visitable
      * @param Model|null $visitor
-     * @param bool $uniqueView
      * @return Visit|bool
      * @throws Exception
      */
@@ -192,8 +197,16 @@ class Cacher implements DataManagementInterface
      * @param Collection $get
      * @return Collection
      */
-    protected function query(Collection $get)
+    protected function query(Collection $get): Collection
     {
+        if($this->visitor)
+            $get = $get->whereVisitor($this->eye()->getVisitorModel());
+
+        if($visitable = $this->eye()->getVisitableModel())
+            $get = $get->whereVisitable($visitable);
+        else
+            $get = $get->whereUrl($this->eye()->url());
+
         if($this->period !== null)
             $get = $get->period($this->period);
 

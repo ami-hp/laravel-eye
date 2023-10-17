@@ -148,29 +148,34 @@ class Visit extends Model
     /**
      * Scope a query to only include views withing the collection.
      *
-     * @param Builder $query
-     * @param Model   $visitable
+     * @param Builder    $query
+     * @param Model|null $post
      * @return Builder
      */
-    public function scopeWhereVisitable(Builder $query, Model $visitable): Builder
+    public function scopeWhereVisitable(Builder $query, ?Model $post): Builder
     {
+        $id    = $post ? $post->id        : null;
+        $model = $post ? get_class($post) : null;
+
         return $query
-            ->where('visitable_id'  , $visitable->id)
-            ->where('visitable_type', get_class($visitable));
+            ->where('visitable_id'  , $id)
+            ->where('visitable_type', $model);
     }
 
     /**
      * Scope a query to only include views withing the collection.
      *
-     * @param Builder $query
-     * @param Model   $visitor
+     * @param Builder    $query
+     * @param Model|null $user
      * @return Builder
      */
-    public function scopeWhereVisitor(Builder $query, Model $visitor): Builder
+    public function scopeWhereVisitor(Builder $query, ?Model $user): Builder
     {
+        $id    = $user ? $user->id        : null;
+        $model = $user ? get_class($user) : null;
+
         return $query
-            ->where('visitor_id'  , $visitor->id)
-            ->where('visitor_type', get_class($visitor));
+            ->where('visitor_id'  , $id)
+            ->where('visitor_type', $model);
     }
 }
-

@@ -72,11 +72,15 @@ class EyeServiceProvider extends ServiceProvider
             return (new MacroCollection)->whereCollection($this , $name);
         });
 
-        Collection::macro('whereVisitor', function (Model $user) {
+        Collection::macro('whereUrl', function (string $url) {
+            return (new MacroCollection)->whereUrl($this , $url);
+        });
+
+        Collection::macro('whereVisitor', function (?Model $user) {
             return (new MacroCollection)->whereVisitor($this , $user);
         });
 
-        Collection::macro('whereVisitable', function (Model $post) {
+        Collection::macro('whereVisitable', function (?Model $post) {
             return (new MacroCollection)->whereVisitable($this , $post);
         });
 

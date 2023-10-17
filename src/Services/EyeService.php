@@ -124,15 +124,16 @@ class EyeService implements DataManagementInterface
 
     /**
      * @param Model|null $user
+     * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null): self
+    public function visitor(?Model $user = null , bool $whereMode = false): self
     {
         if (in_array("cache", $this->storage))
-            $this->cache    = $this->cache->visitor($user);
+            $this->cache    = $this->cache->visitor($user , $whereMode);
 
         if (in_array("database", $this->storage))
-            $this->database = $this->database->visitor($user);
+            $this->database = $this->database->visitor($user , $whereMode);
 
         return $this;
     }
@@ -167,7 +168,7 @@ class EyeService implements DataManagementInterface
         else
             $database = collect();
 
-        return $database->push($cache);
+        return $database->merge($cache);
     }
 
     /**
@@ -198,7 +199,7 @@ class EyeService implements DataManagementInterface
      * @param Model|null $visitor
      * @return Exception
      */
-    public function record(bool $once = false, ?Model $visitable = null, ?Model $visitor = null)
+    public function record(bool $once = false, ?Model $visitable = null, ?Model $visitor = null): Exception
     {
         return new Exception('This method is not Available');
     }
