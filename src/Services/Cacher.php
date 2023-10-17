@@ -80,7 +80,7 @@ class Cacher implements DataManagementInterface
      * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null , bool $whereMode = false): self
+    public function visitor(?Model $user = null , bool $whereMode = true): self
     {
         $this->eye()->setVisitor($user);
 
@@ -90,12 +90,15 @@ class Cacher implements DataManagementInterface
     }
 
     /**
-     * @param Model|null $post
+     * @param Model|bool|null $post
      * @return self
      */
-    public function visitable(?Model $post = null): self
+    public function visitable($post = null): self
     {
-        $this->eye()->setVisitable($post);
+        if($post === false) //Disables Where
+            $this->visitable = false;
+        else // Enables Where Post for Model or Url for Null
+            $this->eye()->setVisitable($post);
 
         return $this;
     }
@@ -202,10 +205,12 @@ class Cacher implements DataManagementInterface
         if($this->visitor)
             $get = $get->whereVisitor($this->eye()->getVisitorModel());
 
-        if($visitable = $this->eye()->getVisitableModel())
-            $get = $get->whereVisitable($visitable);
-        else
-            $get = $get->whereUrl($this->eye()->url());
+        if($this->visitable){
+            if($visitable = $this->eye()->getVisitableModel())
+                $get = $get->whereVisitable($visitable);
+            else
+                $get = $get->whereUrl($this->eye()->url());
+        }
 
         if($this->period !== null)
             $get = $get->period($this->period);

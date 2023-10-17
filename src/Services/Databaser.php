@@ -25,11 +25,13 @@ class Databaser implements DataManagementInterface
 
     private $visitor = false;
 
+    private $visitable = true;
+
     public function __construct(EyeService $eye)
     {
         $this->eye = $eye;
-        $this->query = Visit::query();
-        $this->query();
+        $this->query = $this->queryInit();
+//        $this->query();
     }
 
     /**
@@ -48,10 +50,12 @@ class Databaser implements DataManagementInterface
 
         $query = $this->query;
 
-        if($visitable = $this->eye()->getVisitableModel())
-            $this->query = $query->whereVisitable($visitable);
-        else
-            $this->query = $query->whereUrl($this->eye()->url());
+        if($this->visitable){
+            if($visitable = $this->eye()->getVisitableModel())
+                $this->query = $query->whereVisitable($visitable);
+            else
+                $this->query = $query->whereUrl($this->eye()->url());
+        }
 
         if($this->visitor)
             $this->query = $query->whereVisitor($this->eye()->getVisitorModel());
@@ -72,6 +76,7 @@ class Databaser implements DataManagementInterface
     }
 
     /**
+     * Only Works on Count in database
      * @param string $column
      * @return $this
      */
@@ -103,7 +108,7 @@ class Databaser implements DataManagementInterface
      * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null , bool $whereMode = false): self
+    public function visitor(?Model $user = null , bool $whereMode = true): self
     {
         $this->eye()->setVisitor($user);
 
@@ -114,12 +119,15 @@ class Databaser implements DataManagementInterface
     }
 
     /**
-     * @param Model|null $post
+     * @param Model|bool|null $post
      * @return self
      */
-    public function visitable(?Model $post = null): self
+    public function visitable($post = null): self
     {
-        $this->eye()->setVisitable($post);
+        if($post === false) //Disables Where
+            $this->visitable = false;
+        else // Enables Where Post for Model or Url for Null
+            $this->eye()->setVisitable($post);
 
         return $this;
     }
@@ -129,6 +137,8 @@ class Databaser implements DataManagementInterface
      */
     public function get(): Collection
     {
+        $this->query();
+
         return $this->query->get()->collect();
     }
 
@@ -137,6 +147,8 @@ class Databaser implements DataManagementInterface
      */
     public function count() : int
     {
+        $this->query();
+
         return $this->query->count($this->unique);
     }
 

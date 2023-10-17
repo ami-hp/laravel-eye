@@ -131,7 +131,7 @@ class EyeService implements DataManagementInterface
      * @param bool       $whereMode
      * @return self
      */
-    public function visitor(?Model $user = null , bool $whereMode = false): self
+    public function visitor(?Model $user = null , bool $whereMode = true): self
     {
         if (in_array("cache", $this->storage))
             $this->cache    = $this->cache->visitor($user , $whereMode);
@@ -143,10 +143,10 @@ class EyeService implements DataManagementInterface
     }
 
     /**
-     * @param Model|null $post
+     * @param Model|bool|null $post
      * @return self
      */
-    public function visitable(?Model $post = null): self
+    public function visitable($post = null): self
     {
         if (in_array("cache", $this->storage))
             $this->cache    = $this->cache->visitable($post);
