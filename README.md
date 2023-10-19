@@ -155,6 +155,11 @@ $ php artisan migrate
      * [Select A Period of Time](#select-a-period-of-time)
      * [Select Unique Values](#select-unique-values)
   4. [Step 3: Retrieve Visits](#step-3-retrieve-visits)
+
+
+* [How To Delete Visits](#how-to-delete-visits)
+  * [Delete All](#delete-all)
+  * [Delete Selected Visits](#delete-selected-visits)
 -------
 ## How To Record A Visit
 You can record a Visit in various ways but first, you have to set your data to form a Visit model to be recorded.
