@@ -108,429 +108,493 @@ $ php artisan migrate
         });
 ```
 -------
-# Methods
-
-### To Set Visit Model Data
-
-```php
-
-//To set visitable model
-$eye = eye($visitable);
-//OR 
-$eye = eye()->setVisitable();
-//And there are other ways
-----------------------------
-//to Change Visitor Model
-//It is set to auth()->user() on default
-$eye = eye()->setVisitor($userModel);
-//And there are other ways
-----------------------------
-//To set Collection
-$eye = eye()->setCollection($string);
-----------------------------
-//To change the parser value in config
-$eye = eye()->byParser($string);
-----------------------------
-```
-
-### To Get Visit Model Data
-```php
-eye()->request(); // == request()->all()
-eye()->ip(); // == request()->ip()
-eye()->url(); // == request()->fullUrl()
-eye()->referer(); // == $_SERVER['HTTP_REFERER'] ?? null
-eye()->method(); // == request()->getMethod()
-eye()->httpHeaders(); // == request()->headers->all()
-eye()->userAgent(); // == request->userAgent() ?? ''
-eye()->device(); //example: Webkit, ...
-eye()->platform(); //example: Windows, Mac, ...
-eye()->browser(); //example: Edge, Chrome, ...
-eye()->languages(); //example: ["en-us","en","fa"]
-eye()->uniqueId(); // == Str::random for cookie
-eye()->getCurrentVisit(); // All the above as Visit Model
-eye()->getVisitorModel(); // example: User Model
-eye()->getVisitableModel(); //example: Article Model
-```
-
-### Choose Your Storing method
-> **NOTE**: If you don't use these methods, the package automatically uses all of storages
-```php
-$eye = $eye->viaCache(); // meaning : only using cache
-$eye = $eye->viaDatabase(); // meaning : only using database
-```
-You Can Also Combine the result of storages that you choose:
-```php
-$eye = $eye->viaExcept('Redis'); // meaning: Not Redis 
-$eye = $eye->viaOnly('Cache' , 'Database'); // meaning: Not Redis
-```
-
-## General Methods (Interface)
-These Methods Work on `viaDatabase` and `viaCache` and any storing method that this package provides.
-### 1. period(Period $period)
-You can read all of Period Documentation in this Link: 
-[Cryildewit/Period](https://github.com/cyrildewit/eloquent-viewable/blob/master/README.md#between-two-datetimes)
-
-```php
-//basic example
-//The Date Should be at least Y-m
-$period = Period::create('2017-04-20', '2023-07-08');
-$eye = $eye->period($period);
-
-```
-### 2. unique(string $column = 'unique_id')
-This chain method will assist to get Unique values base on the column you need.
-* By default, it is set for unique_id .
-
-```php
-//example
-$eye = $eye->unique('browser');
-```
-
-### 3. collection(?string $name = null)
-This chain method can help to get Visits or set collection for `Visit` Model.
-```php
-//example
-$eye = $eye->collection('articles');
-```
-
-### 4. visitor(?Model $user = null , bool $whereMode = true)
-This chain method will replace visitor fields in `Visit` Model.
-* It is useful for getting the User's activity.
-By default `$whereMode` in true which means :
-Everytime you are fetching data it will use `->where('visitor_type' , $type)->where('visitor_id' , $id)` methods to get them. 
-```php
-//example
-$user = User::findOrFail(1);
-
-$eye = $eye->visitor($user);
-//or
-$eye = $eye->visitor($user , false); // to disable where() query methods
-```
-
-
-### 5. visitable(Model|null|bool $post = null)
-This chain method has two usages based on Argument:
-1. **Model or Null** : It will Replace value of `visitable_type` and `visitable_id` in `Visit` Model. For Fetching visits it will use `->where('visitable_type' , $type)->where('visitable_id' , $id)` 
-2. **Bool** False : IF ONLY false was given it will disable `where()` methods
-```php
-//example
-$post = Article::findOrFail(1);
-
-$eye = $eye->visitable($post);
-//or
-$eye = $eye->visitable(false); // to disable where() query methods
-```
-> **NOTE**: If where() is enabled and visitable is null , the packages works based on url.
-
-### 6. get()
-It will Fetch Visits from database or cache with the help of the queries you specified (like above).
-```php
-//example
-$eye = $eye->get();
-```
-
-### 7. count()
-It does the exact thing as `get()` does. but returns Integer.
-```php
-//example
-$eye = $eye->count();
-```
-> **NOTE:** If you don't specify one storing method ,`get()`and`count()` will fetch data from multiple storages and combines them.
-> 
-> **example:**
-> If `eye()->viaCache()->count()` returns 6 and `eye()->viaDatabase()->count()` returns 50, `eye()->count()` will return 56. 
-
-
-### 8. once()
-This method will check if the visitor has a record from before, it will not record another one until the user's cookie expires.
-> **Note:** for `viaDatabase()` it only works with `count()` and not `get()`
-```php
-//example
-$eye = $eye->once();
-```
-
-### 9. record(bool $once = false , ?Model $visitable = null, ?Model $visitor = null)
-It will record the visit **ONLY** via the storing method you chose.
-you can also:
-- replace `once()` with its argument
-- replace visitable methods with its argument
-- replace visitor methods with its argument
-```php
-//simple example
-$eye->record();
-
-//or
-
-$post = Post::findOrFail(1);
-$user = User::findOrFail(1);
-$eye->record(
-        once      : true,  // == once()
-        visitable : $post, // == ->setVisitable($post)
-        visitor   : $user, // == ->setVisitor($user)
-    ); 
-```
-### 10. truncate()
-removes all visits in storage
-```php
-$eye->truncate();
-```
-### 11. delete()
-removes all visits in storage
-```php
-$eye->delete();
-```
-
-## Exclusive Methods
-### Cache methods
-#### 1. forget(): bool
-```php
-eye()->viaCache()->forget();
-//equals to this
-Cache::forget(config('eye.cache.key'));
-```
-#### 2. pushCacheToDatabase() : bool
-You can push caches to database anytime you want
-```php
-eye()->viaCache()->pushCacheToDatabase();
-
-// it uses Visit::insert($cachedVisits)
-```
-#### 3. Macro methods
-This package automatically binds methods to Collection class
-```php
-$collection = Cache::get(config('eye.cache.key'));
-
-$collection->period(Period $period);
-$collection->whereUrl(string $url);
-$collection->whereVisitor(?Model $user);
-$collection->whereVisitable(?Model $post);
-$collection->whereCollection(string $name);
-$collection->whereVisitHappened(Visit $visit);
-```
-### Database methods
-#### 1. queryInit()
-You can write any query you want.
-```php
-eye()->viaDatabase()->queryInit();
-//equals to this
-Visit::query();
-```
-
-
 # Usage
 
-## Recording Visits
+* [Complete Documentation](Docs.md)
 
-> **Note:** *Recording Methods are applied for all storing methods, Therefore you can replace `viaCache` with other ones*.
-> > The only Method that does not have General Usage is `Record()`. It just didn't make sense to make one. Feel free comment if you needed.
 
-### 1. Record only for Url
-If you don't set visitable you can work with url
+* [How To Record A Visit](#how-to-record-a-visit)
+  1. [Step 1: Set Visit Data From Start](#step-1-set-visit-data-from-start)
+     * [Set Visitable Model](#set-visitable-model) 
+     * [Set Visitor Model](#set-visitor-model) 
+     * [Set Collection](#set-collection) 
+  2. [Stap 2: Choose Your Storing Method](#step-2-choose-your-storing-method)
+     * [Store Visits in Database](#store-visits-in-database) 
+     * [Store Visits in Cache](#store-visits-in-cache)
+     * [Store Visits in Redis](#store-visits-in-redis)
+  3. [Step 3: Set Data via Storing Methods](#step-3-set-data-via-storing-methods)
+     * [Set Visitable Model](#set-visitable-model-1)
+     * [Set Visitor Model](#set-visitor-model-1)
+     * [Set Collection](#set-collection-1)
+  4. [Step 4: Define Conditions](#step-4-define-conditions)
+  5. [Step 5: Record the Visit](#step-5-record-the-visit)
+  6. [Additional Examples](#additional-examples)
+
+
+    
+* [How To Retrieve From Each Storage](#how-to-retrieve-from-each-storage)
+  1. [Step 1: Selecting the Data You Need](#step-1-selecting-the-data-you-need)
+     * [Selecting Visitable or Url](#selecting-visitable-or-url) 
+     * [Selecting Visitor](#selecting-visitor) 
+     * [Selecting Collection](#selecting-collection) 
+  2. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+     * [Select Visits In a Period of time](#select-visits-in-a-period-of-time)
+     * [Select Visits with a Unique Value](#select-visits-with-a-unique-value)
+  3. [Step 3: Fetch Data From Storage](#step-3-fetch-data-from-storage)
+
+
+* [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
+  1. [Step 1: Select Storing Methods](#step-1-select-storing-methods)
+     * [Select All](#select-all)
+     * [Select Multiple Storages](#select-multiple-storages)
+  2. [Step 2: Select Visit Models](#step-2-select-visit-models)
+     * [Select Visitable Model](#select-visitable-model)
+     * [Select Visitor Model](#select-visitor-model)
+     * [Select collection](#select-collection)
+  3. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+     * [Select A Period of Time](#select-a-period-of-time)
+     * [Select Unique Values](#select-unique-values)
+  4. [Step 3: Retrieve Visits](#step-3-retrieve-visits)
+-------
+## How To Record A Visit
+You can record a Visit in various ways but first, you have to set your data to form a Visit model to be recorded.
+
+### Step 1: Set Visit Data From Start
+The Visit Model is connected to the [visit table](#migration) which is shown above
+It is possible to Set Data From Start To the end of the chained methods.
+
+#### Example
 ```php
-//only Individual Usage
-eye()->viaCache()->record();
+$post = Post::first();
+$user = User::first();
+$name = 'name of collection';
+
+//if you wanted to set data
+$eye = eye($post)->setVisitor($user)->setCollection($name);
+
+//also if you didn't want to set data you can
+$eye = eye();
 ```
 
-### 2. Record for Visitable Model
- 
+#### Set Visitable Model
+If you don't use this method, by default visitable model is set to be `NULL`. 
 ```php
-$post = Post::findOrFail(1);
+$post = Post::first();
 
-//All of these lines return the same outcome.
-
-//Individual Usage
-eye($post)->viaCache()->record(); //Recommended
+eye($post)
 //or
-eye()->setVisitable($post)->viaCache()->record();
-//or
-eye()->viaCache()->visitable($post)->record();
-//or
-eye()->viaCache()->record(visitable: $post);
+eye()->setVisitable($post);
 ```
 
-### 3. Record with new Visitor Model
- It will replace `auth()->user()`
+#### Set Visitor Model
+If you don't use this method, by default visitable model is set to be `auth()->user()`.
 ```php
-$user = User::findOrFail(1);
+$user = User::first();
 
-//All of these lines return the same outcome.
-
-eye()->setVisitor($user)->viaCache()->record();
-//or
-eye()->viaCache()->visitor($user)->record(); //recommended
-//or
-eye()->viaCache()->record(visitor: $user);
+eye()->setVisitor($user);
 ```
 
-### 4. Record with Collection
-
- It will fill collection column
-
+#### Set Collection
+If you don't use this method, by default it is set for `NULL`.
 ```php
-$name = "name of collection";
+$name = 'name of collection';
 
-//All of these lines return the same outcome.
-
-eye()->setCollection($name)->viaCache()->record(); 
-//or
-eye()->viaCache()->collection($name)->record(); //Recommended
+eye()->setCollection($name);
 ```
 
-### 5. Record only once for a cookie
- 
+### Step 2: Choose Your Storing Method
+You can choose your storage, which is where you want to store your visits in.
+
+#### Example
 ```php
-//All of these lines return the same outcome.
-
-eye()->viaCache()->once()->record(); //Recommended 
+eye()->viaDatabase();
 //or
-eye()->viaCache()->record(true);
+eye()->viaCache()
 ```
-## Fetching Visits
 
-### 1. Get/Count Where IS "Current Url"
+#### Store Visits in Database
+Storing visits in database is a common way to store data. By using this method everytime a user visits,
+a query will be made to be inserting your data to database. By default, this method uses queue to insert data but,
+you can always turn it off by changing the value of queue to `false` in the config file `eye.php`.
+> Pros : Gaining More control over visits with Visit model being connected to database. 
+> 
+> Cons : Interacting with database takes time. And if your website simultaneously has a lot of visitors
+> it will slow your website down. 
 
 ```php
-//General Usage
-eye()->get();
--------------  
-eye()->count();
-
-//Individual Usage
-eye()->viaCache()->get();
--------------  
-eye()->viaCache()->count();
-
+eye($post)->viaDatabase();
 ```
-### 2. Get/Count Where IS "Visitable Model"
+
+#### Store Visits in Cache
+Using Cache as storage works as a bypass for inserting data to database. But you can hold the data
+in cache as long as you want. There is a Limit to the number of visits you can save, and it is
+in your control by changing `cache.max_count` in config file `eye.php`. After Reaching to maximum, the package will automatically push visits to database. Key name of cache is also there to be changed if you needed.
+```php
+eye($post)->viaCache();
+```
+
+#### Store Visits in Redis
+IN THE FUTURE...
+
+### Step 3: Set Data via Storing Methods
+You can also set data from this stage instead of setting it before choosing your storing method.
+there is no difference.
+
+> **NOTE:** These methods are included in an **interface** so, they work in all storing methods.
+
+#### Example
+```php
+$eye = eye()->viaDatabase(); //OR
+$eye = eye()->viaCache();
+
+$post = Post::first();
+$user = User::first();
+$name = 'name of collection';
+
+$eye->collection($name)
+    ->visitor($user)
+    ->visitable($user);
+```
+
+#### Set Visitable Model
+If you don't use this method, by default visitable model is set to be `NULL`.
+```php
+$post = Post::first();
+
+eye()->viaCache()->visitable($post);
+//SAME AS
+eye($post)->viaCache();
+```
+
+#### Set Visitor Model
+If you don't use this method, by default visitable model is set to be `auth()->user()`.
+```php
+$user = User::first();
+
+eye()->viaCache()->visitor($user);
+//SAME AS
+eye()->setVisitor($user)->viaCache();
+```
+
+#### Set Collection
+If you don't use this method, by default it is set for `NULL`.
+```php
+$name = 'name of collection';
+
+eye()->viaCache()->collection($user);
+//SAME AS
+eye()->setCollection($name)->viaCache();
+```
+### Step 4: Define Conditions
+
+#### Record only Once
+By using the method package will check if the user has a record stored or not.
+If the user had already visited the page so a new visit WILL NOT be recorded.
+
+It works with the cookie that package set for user when enters the page,
+and will be stored as `unique_id`.
+
+> **NOTE:** You can change the key of cookie and expiration time in config file `eye.php`
+> by changing `cookie.key` and `cookie.expire_time`.
+```php
+$name = 'name of collection';
+
+eye()->viaCache()->once();
+```
+
+### Step 5: Record the Visit
+In the end you can insert the Visit Model to database or Cache.
+The Structure is basically this:
 
 ```php
-$post = Post::findOrFail(1);
+Step1->Step2->Step3->Step4->record(bool $once = false, ?Model $visitable = null, ?Model $visitor = null);
+```
+It means that you can also set the visitable and visitor from this method.
 
-//General Usage
-eye($post)->get(); // Recommended
-//or  
-eye()->visitable($post)->get();
-//or  
-eye()->setVisitable($post)->get();
--------------
-eye($post)->count(); // Recommended
-//or  
-eye()->visitable($post)->count();
+```php
+$post = Post::first();
+$user = User::first();
+
+eye()->viaCache()->record(true , $post , $user);
+//SAME AS
+eye($post)->viaCache()->visitor($user)->once()->record();
+```
+
+#### Additional Examples
+```php
+$post = Post::first();
+$user = User::first();
+$name = 'name of collection';
+
+eye()->viaDatabase()->collection($name)->visitable($post)->record();
+eye($post)->viaCache()->once()->record(); // Recommended
+```
+--------
+# How To Retrieve Visits
+You might want to list the Visits with details or just count them. It is all possible.
+You can do it for each storage separately or all together combined.
+
+The Steps are very similar to Recording Steps.
+
+## How To Retrieve From Each Storage
+If you needed to retrieve data from each storage individually,
+you just need to use their storing method.
+```php
+eye()->viaCache() 
+// OR
+eye()->viaDatabase()
+```
+> **NOTE:** The Following Steps apply to all storing methods.
+
+### Step 1: Selecting the Data You Need
+It works exactly like setting data.
+
+#### Selecting Visitable or Url
+If you pass a model to visitable methods,
+It will select the Visits with the visitable model.
+But if you don't, it will select the url that the route is in.
+It works for `NULL` too.
+
+For Visitable:
+```php
+$post = Post::first(); // or NULL
+
+eye($post)->viaCache(); // Simplified
 //or
-eye()->setVisitable($post)->get();
-
-
-//Individual Usage
-eye($post)->viaCache()->get(); // Recommended
-//or  
-eye()->viaCache()->visitable($post)->get();
-//or  
-eye()->setVisitable($post)->viaCache()->get();
--------------
-eye($post)->viaCache()->count(); // Recommended
-//or  
-eye()->viaCache()->visitable($post)->count();
+eye()->setVisitable($post)->viaCache();
 //or
-eye()->setVisitable($post)->viaCache()->get();
-
+eye()->viaCache()->visitable($post); // Humanized
+```
+Result:
+```php
+->where('visitable_id'   , $post->id)
+->where('visitable_type' , get_class($post))
 ```
 
+For Url:
+```php
+eye()->viaCache();
+```
 
-### 3. Get/Count Where IS "Visitor Model"
+Result:
+```php
+->where('url' , request()->fullUrl())
+```
+Sometimes you don't need to enable a where clause for your query.
+you can **disable** it by using `visitable(false)`.
 
 ```php
-$user = User::findOrFail(1);// Null works too
-
-//General Usage
-eye()->visitor($user)->get();
--------------
-eye()->visitor($user)->count();
-
-//Individual Usage
-eye()->viaCache()->visitor($user)->get();
--------------
-eye()->viaCache()->visitor($user)->count();
+eye()->viaCache()->visitable(false);
 ```
-
-### 4. Get/Count Where IS NOT "Visitor Model"
+#### Selecting Visitor
+It is possible if you wanted to fetch the Visits that a specific visitor made.
+And you can pass `NULL` as well.
+> The difference between this method and the one in record steps is that
+> you need to turn `$whereMode` argument to `true`. otherwise it just sets visitor. 
 
 ```php
-$user = User::findOrFail(1);// Null works too
+$user = User::first(); // or NULL
 
-//General Usage
-eye()->visitor($user, false)->get();
--------------
-eye()->visitor($user, false)->count();
-
-//Individual Usage
-eye()->viaCache()->visitor($user, false)->get();
--------------
-eye()->viaCache()->visitor($user, false)->count();
+eye()->viaCache()->visitor($user , true);
 ```
-
-### 5. Get/Count Where IS "Collection"
-
+Result:
 ```php
-//General Usage
-eye()->collection('name of collection')->get();
--------------
-eye()->collection('name of collection')->count();
-
-//Individual Usage
-eye()->viaCache()->collection('name of collection')->get();
--------------
-eye()->viaCache()->collection('name of collection')->count();
+->where('visitor_id'   , $user->id)
+->where('visitor_type' , get_class($user))
 ```
 
-### 6. Get/Count Where IS "Period"
-You can read all of Period Documentation in this Link:
+#### Selecting Collection
+```php
+$name = 'name of collection';
+
+eye()->viaCache()->collection($name);
+```
+Result:
+```php
+->where('collection' , $name)
+```
+
+### Step 2: Add More Conditions
+
+#### Select Visits In a Period of time
+The `period()` method passes a `Period` class as argument.
+> You can read all about this class in
 [Cryildewit/Period](https://github.com/cyrildewit/eloquent-viewable/blob/master/README.md#between-two-datetimes)
+
 ```php
-$period = Period::create('2011-10' , '2023-10-17 12:00:00');// Null works too
+$startDateTime = '1997-01';
+$endDateTime   = '2023-08-17 10:11:00';
+$period = Period::create($startDateTime , $endDateTime); //example
 
-//General Usage
-eye()->period($period)->get();
--------------
-eye()->period($period)->count();
-
-//Individual Usage
-eye()->viaCache()->period($period)->get();
--------------
-eye()->viaCache()->period($period)->count();
+eye()->viaCache()->period($period);
 ```
 
-### 7. Get/Count Where IS "Unique"
-> **NOTE:** This method is the only method that does not work for database `get()`
-It is best to use `count()`  
+Result:
 ```php
-$field = "column name";// Null works too
-
-//eye()->unique($field)->get(); //DOES NOT WORK properly
-//eye()->viaDatabase()->unique($field)->get() //DOES NOT WORK
-eye()->viaCache()->unique($field)->get() //WORKS
--------------
-eye()->unique($field)->count();// recommended
-eye()->viaDatabase()->unique($field)->count();// WORKS
-eye()->viaCache()->unique($field)->count();// WORKS
+if ($startDateTime !== null && $endDateTime === null) 
+    ->where('viewed_at', '>=', $startDateTime);
+elseif ($startDateTime === null && $endDateTime !== null)
+    ->where('viewed_at', '<=', $endDateTime);
+elseif ($startDateTime !== null && $endDateTime !== null)
+    ->whereBetween('viewed_at', [$startDateTime, $endDateTime]);
 ```
 
-## Removing Visits
-### 1. Remove ALL
-Removes Everything, Everywhere, All At Once
-```php
-//General Usage
-eye()->truncate();
+#### Select Visits with a Unique value
+There can be multiple rows with the same value in a column.
+By default, the method uses `unique_id` column which is the cookie of user.
 
-//Individual Usage
-eye()->viaCache()->truncate();
+##### via *Cache*
+```php
+$column = 'unique_id';
+eye()->viaCache()->unique($column)
+
 ```
-### 1. Remove Selected Visits
-Select the Visits by methods above then delete. examples:
+
+Result:
 ```php
-//General Usage
-eye()->collection($name)->visitable($post)->delete();
+->unique($column)
+```
 
-//Individual Usage
-eye()->viaCache()->collection($name)->visitable($post)->delete();
+##### via *Database*
+The Problem is that it doesn't work the same for all storing methods.
+In `viaCache` it retrieves for both fetching Visits details and counting,
+but in `viaDatabase` it only works with counting.
 
+```php
+$column = 'unique_id';
+eye()->viaCache()->unique($column)->count();
+```
+
+Result:
+```php
+->distinct()->count($column);
+```
+### Step 3: Fetch Data From Storage
+Finally, you can retrieve data only by using `count()` or `get()`
+
+The Structure is basically this:
+
+```php
+Step1->Step2->count(); // returns Int
+Step1->Step2->get();   // returns collection of Visit models
+```
+Get creative with it.
+#### Examples
+```php
+eye($post)->viaCache()
+          ->unique()
+          ->count();
+// OR
+eye()->viaDatabase()
+     ->collection('name')
+     ->visitor($user)
+     ->get();
+```
+## How To Retrieve From Multiple Storages
+When using cache, after reaching the maximum amount package will push
+visits to database. or maybe you accidentally used multiple storages. 
+The package provides you methods to use multiple storing methods all at once.
+
+### Step 1: Select Storing Methods
+
+#### Select All
+It's very simple.
+```php
+eye()
+```
+#### Select Multiple Storages
+If you needed to rule out some storing methods you can use these methods.
+Both of them an iterable argument. 
+```php
+eye()->viaOnly('database' , 'cache')
+//Or
+eye()->viaExcept('redis')
+```
+
+### Step 2: Select Visit Models
+Do it as if you're using storages individually. It works the same.
+
+#### Select Visitable Model
+
+```php
+$post = Post::first();
+
+eye($post);
+//or
+eye()->visitable($post);
+```
+#### Select Visitor Model
+```php
+$user = User::first();
+
+eye($post);
+//or
+eye()->visitor($post);
+```
+#### Select collection
+```php
+$name = 'collection';
+
+eye($post)->collection($name);
+```
+### Step 2: Add More Conditions
+
+#### Select A Period of Time
+```php
+$startDateTime = '1997-01';
+$endDateTime   = '2023-08-17 10:11:00';
+$period = Period::create($startDateTime , $endDateTime); //example
+
+eye()->period($period);
+```
+
+#### Select Unique Values
+By default, it is set for `unique_id`.
+```php
+$column = 'platform';
+
+eye()->unique($column);
+```
+> As mentioned before, it only works on counting for database.
+
+### Step 3: Retrieve Visits
+Combine the previous methods and add `get()` or `count()`.
+#### Examples
+```php
+eye($post)->collection($name)->unique()->count();
+eye()->viaOnly('redis' , 'cache')->visitor($user)->get();
+eye()->viaExcept('database')->visitable($post)->unique()->get();
+```
+
+## How To Delete Visits
+Sometimes you need to delete some recorded visits from your storages.
+This package provides you some methods to do it individually or delete them all at once.
+> **NOTE:** Unique method does not work here
+### Delete All
+- Step 1 : Select Storing Methods
+- Step 2 : Truncate
+#### Examples
+```php
+eye()->truncate() // Removes All Visits in Every Storage
+eye()->viaCache()->truncate() // Removes All Visits in a storage
+eye()->viaOnly('database' , 'cache')->truncate() // Removes All Visits in selected storages
+
+```
+### Delete Selected Visits
+Selecting visits work exactly like retrieving them.
+
+- Step 1 : Select Storing Methods
+- Step 2 : Select Visits
+- Step 3 : Delete
+
+#### Examples
+```php
+eye($post)->collection('$name')->delete();
+eye()->viaCache()->visitor($user , true)->delete();
+
+eye()->viaExcept('redis')
+     ->visitable(false)
+     ->visitor($user , true)
+     ->collection($name)
+     ->delete();
 ```
