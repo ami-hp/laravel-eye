@@ -451,7 +451,7 @@ By default, the method uses `unique_id` column which is the cookie of user.
 ##### via *Cache*
 ```php
 $column = 'unique_id';
-eye()->viaCache()->unique($column)
+eye()->viaCache()->unique($column);
 
 ```
 
@@ -582,7 +582,7 @@ This package provides you some methods to do it individually or delete them all 
 ```php
 eye()->truncate(); // Removes All Visits in Every Storage
 eye()->viaCache()->truncate(); // Removes All Visits in a storage
-eye()->viaOnly('database' , 'cache')->truncate() // Removes All Visits in selected storages
+eye()->viaOnly('database' , 'cache')->truncate(); // Removes All Visits in selected storages
 
 ```
 ### Delete Selected Visits
