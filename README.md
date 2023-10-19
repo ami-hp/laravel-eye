@@ -511,9 +511,9 @@ eye()
 If you needed to rule out some storing methods you can use these methods.
 Both of them an iterable argument. 
 ```php
-eye()->viaOnly('database' , 'cache')
+eye()->viaOnly('database' , 'cache');
 //Or
-eye()->viaExcept('redis')
+eye()->viaExcept('redis');
 ```
 
 ### Step 2: Select Visit Models
@@ -580,8 +580,8 @@ This package provides you some methods to do it individually or delete them all 
 - Step 2 : Truncate
 #### Examples
 ```php
-eye()->truncate() // Removes All Visits in Every Storage
-eye()->viaCache()->truncate() // Removes All Visits in a storage
+eye()->truncate(); // Removes All Visits in Every Storage
+eye()->viaCache()->truncate(); // Removes All Visits in a storage
 eye()->viaOnly('database' , 'cache')->truncate() // Removes All Visits in selected storages
 
 ```
