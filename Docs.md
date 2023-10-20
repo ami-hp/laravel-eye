@@ -10,11 +10,11 @@ It Stores Each Visit based on user's **Cookie**.
 The Idea is being able to Cache Visits to reduce queries.
 Using Cache is better for Websites with a little higher than normal traffic.
 
-|          | User Traffic | Queue    |
-|----------|--------------|----------|
-| Database | Low          | Optional |
-| Cache    | Medium       | Optional |
-| Redis    | High		       | False    |
+|             | Speed  |
+|-------------|--------|
+| Database    | Low    | 
+| Cache:file  | Medium | 
+| Cache:redis | High		 | 
 
 > **NOTE** : If you save a high amount of data in cache, memory WILL BE EXHAUSTED. The Limitation Depends on your memory but no more than 1 million is recommended to save in cache.
 
@@ -23,7 +23,7 @@ These paths are provided for you to store the Visits When User Comes to your Vis
 ```mermaid
 graph LR
 A{Client Side} -- record --> B(via Cache)
-A  -- record --> C(via Redis)
+
 B  -- push --> D(via Database)
 A  -- record --> D
 ```
@@ -33,10 +33,10 @@ And These paths are provided to **get** the Visits from your storage:
 graph LR
 A(via Database) --> D{Client Side}
 B(via Cache)  --> D{Client Side}
-C(via Redis) --> D{Client Side}
+
 A --> E((SUM))
 B --> E((SUM)) 
-C --> E((SUM))
+
 E --> D
 ```
 
@@ -159,9 +159,10 @@ $eye = $eye->viaCache(); // meaning : only using cache
 $eye = $eye->viaDatabase(); // meaning : only using database
 ```
 You Can Also Combine the result of storages that you choose:
-```php
-$eye = $eye->viaExcept('Redis'); // meaning: Not Redis 
-$eye = $eye->viaOnly('Cache' , 'Database'); // meaning: Not Redis
+```php 
+eye()->via('cache' , 'database'); // meaning : only using database
+// or simply
+eye()
 ```
 
 ## General Methods (Interface)

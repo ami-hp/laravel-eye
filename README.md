@@ -10,11 +10,11 @@ It Stores Each Visit based on user's **Cookie**.
 The Idea is being able to Cache Visits to reduce queries.
 Using Cache is better for Websites with a little higher than normal traffic.
 
-|          | User Traffic | Queue    |
-|----------|--------------|----------|
-| Database | Low          | Optional |
-| Cache    | Medium       | Optional |
-| Redis    | High		       | False    |
+| Storing Method | Speed  |
+|----------------|--------|
+| Database       | Low    |
+| Cache:file     | Medium |
+| Cache:redis    | High		 |
 
 > **NOTE** : If you save a high amount of data in cache, memory WILL BE EXHAUSTED. The Limitation Depends on your memory but no more than 1 million is recommended to save in cache.
 
@@ -23,7 +23,6 @@ These paths are provided for you to store the Visits When User Comes to your Vis
 ```mermaid
 graph LR
 A{Client Side} -- record --> B(via Cache)
-A  -- record --> C(via Redis)
 B  -- push --> D(via Database)
 A  -- record --> D
 ```
@@ -33,10 +32,8 @@ And These paths are provided to **get** the Visits from your storage:
 graph LR
 A(via Database) --> D{Client Side}
 B(via Cache)  --> D{Client Side}
-C(via Redis) --> D{Client Side}
 A --> E((SUM))
-B --> E((SUM)) 
-C --> E((SUM))
+B --> E((SUM))
 E --> D
 ```
 
@@ -145,8 +142,6 @@ $ php artisan migrate
 
 * [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
   1. [Step 1: Select Storing Methods](#step-1-select-storing-methods)
-     * [Select All](#select-all)
-     * [Select Multiple Storages](#select-multiple-storages)
   2. [Step 2: Select Visit Models](#step-2-select-visit-models)
      * [Select Visitable Model](#select-visitable-model)
      * [Select Visitor Model](#select-visitor-model)
@@ -239,7 +234,8 @@ eye($post)->viaCache();
 ```
 
 #### Store Visits in Redis
-IN THE FUTURE...
+The only thing you should do is to change `CACHE_DRIVER` to `redis` so the package will use Redis through Cache.
+The storing method is still `viaCache()`.
 
 ### Step 3: Set Data via Storing Methods
 You can also set data from this stage instead of setting it before choosing your storing method.
@@ -506,14 +502,9 @@ The package provides you methods to use multiple storing methods all at once.
 It's very simple.
 ```php
 eye()
-```
-#### Select Multiple Storages
-If you needed to rule out some storing methods you can use these methods.
-Both of them an iterable argument. 
-```php
-eye()->viaOnly('database' , 'cache');
-//Or
-eye()->viaExcept('redis');
+// or
+eye()->via('database' , 'cache'); // means both of them
+
 ```
 
 ### Step 2: Select Visit Models
@@ -567,8 +558,7 @@ Combine the previous methods and add `get()` or `count()`.
 #### Examples
 ```php
 eye($post)->collection($name)->unique()->count();
-eye()->viaOnly('redis' , 'cache')->visitor($user)->get();
-eye()->viaExcept('database')->visitable($post)->unique()->get();
+eye()->via('cache' , 'database')->visitor($user)->get();
 ```
 
 ## How To Delete Visits
@@ -582,7 +572,7 @@ This package provides you some methods to do it individually or delete them all 
 ```php
 eye()->truncate(); // Removes All Visits in Every Storage
 eye()->viaCache()->truncate(); // Removes All Visits in a storage
-eye()->viaOnly('database' , 'cache')->truncate(); // Removes All Visits in selected storages
+eye()->via('database' , 'cache')->truncate(); // Removes All Visits in selected storages
 
 ```
 ### Delete Selected Visits
@@ -594,10 +584,10 @@ Selecting visits work exactly like retrieving them.
 
 #### Examples
 ```php
-eye($post)->collection('$name')->delete();
+eye($post)->collection($name)->delete();
 eye()->viaCache()->visitor($user , true)->delete();
 
-eye()->viaExcept('redis')
+eye()->via('cache')
      ->visitable(false)
      ->visitor($user , true)
      ->collection($name)

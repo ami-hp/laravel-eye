@@ -23,7 +23,7 @@ class EyeService implements DataManagementInterface
 
     private $database;
 
-    public $storage = ['cache' , 'database' , 'redis'];
+    public $storage = ['cache' , 'database'];
 
     /**
      * @throws Exception
@@ -42,23 +42,11 @@ class EyeService implements DataManagementInterface
     }
 
     /**
-     * Disable Storing methods
+     * Multiple storing methods
      * @param ...$storage
      * @return $this
      */
-    public function viaExcept(...$storage): self
-    {
-        $this->storage = array_diff($this->storage, $storage);
-
-        return $this;
-    }
-
-    /**
-     * Disable Storing methods
-     * @param ...$storage
-     * @return $this
-     */
-    public function viaOnly(...$storage): self
+    public function via(...$storage): self
     {
         $this->storage = $storage;
 
@@ -233,13 +221,30 @@ class EyeService implements DataManagementInterface
     /**
      * @return void
      */
-    public function delete()
+    public function delete(): void
     {
         if (in_array("cache", $this->storage))
             $this->cache->delete();
 
         if (in_array("database", $this->storage))
             $this->database->delete();
+    }
+
+    /**
+     * Deprecated
+     * =======
+     */
+
+    /**
+     * Disable Storing methods
+     * @param ...$storage
+     * @return $this
+     */
+    private function viaExcept(...$storage): self
+    {
+        $this->storage = array_diff($this->storage, $storage);
+
+        return $this;
     }
 
 }
