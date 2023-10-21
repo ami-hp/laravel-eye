@@ -604,6 +604,7 @@ eye()->via('cache')
 You can also get visits data through you morphed models.
 
 ### EyeVisitable Trait
+Add `EyeVisitable` to your visitable model.
 
 #### Observer
 Visitable observer will monitor your model's activity so, 
@@ -657,4 +658,27 @@ $visits = $post->cachedVisits('unique_id' , 'name of collection' , $user);
 
 
 $visits->count(); //int
+```
+
+### EyeVisitor Trait
+Add `EyeVisitor` to your visitor model. and the rest is similar to visitable trait.
+
+#### Observer
+```php
+public function deleted(Model $visitor)
+{
+    if ($visitor->isForceDeleting())
+        eye()->visitor($visitor)->visitable(false)->delete();
+}
+```
+
+#### Relations
+```php
+public function visits()
+{
+    return $this->morphMany(Visit::class, 'visitor');
+}
+```
+```php
+public function cachedVisits(?string $unique = null , ?string $collection = null , $visitable = false): Collection
 ```

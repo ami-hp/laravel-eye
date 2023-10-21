@@ -19,7 +19,7 @@ class VisitorObserver
     public function deleted(Model $visitor)
     {
         if ($visitor->isForceDeleting())
-            eye()->visitor($visitor)->delete();
+            eye()->visitor($visitor)->visitable(false)->delete();
     }
 
 }
