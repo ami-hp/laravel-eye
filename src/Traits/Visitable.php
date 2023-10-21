@@ -3,10 +3,18 @@
 namespace Ami\Eye\Traits;
 
 use Ami\Eye\Models\Visit;
-use Illuminate\Database\Eloquent\Model;
+use Ami\Eye\Observers\VisitableObserver;
 
 trait Visitable
-{
+{    /**
+ * Viewable boot logic.
+ *
+ * @return void
+ */
+    public static function bootVisitable()
+    {
+        static::observe(VisitableObserver::class);
+    }
     /**
      * Get all of the model visit logs.
      *
@@ -17,15 +25,4 @@ trait Visitable
         return $this->morphMany(Visit::class, 'visitable');
     }
 
-    /**
-     * Create a visit log.
-     *
-     * @param Model|null $visitor
-     *
-     * @return mixed
-     */
-    public function createVisitLog(?Model $visitor)
-    {
-        return app('ami-visitor-cacher')->setVisitor($visitor)->record($this);
-    }
 }
