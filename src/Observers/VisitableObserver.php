@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class VisitableObserver
 {
     /**
-     * Handle the deleted event for the viewable model.
+     * Handle the deleted event for the visitable model.
      *
      * @param Model $visitable
      * @return void
