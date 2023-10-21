@@ -535,3 +535,87 @@ eye()->collection($name)->visitable($post)->delete();
 eye()->viaCache()->collection($name)->visitable($post)->delete();
 
 ```
+
+----------
+## How To Use Traits
+You can also get visits data through you morphed models.
+
+### EyeVisitable Trait
+Add `EyeVisitable` to your visitable model.
+
+#### Observer
+Visitable observer will monitor your model's activity so,
+when your model got (force) deleted visits
+gets deleted as well by this code:
+
+```php
+public function deleted(Model $visitable)
+{
+    if ($visitable->isForceDeleting())
+        eye($visitable)->delete();
+}
+```
+
+#### Relations
+In order to use eager loading you will need database relationships.
+```php
+public function visits()
+{
+    return $this->morphMany(Visit::class, 'visitable');
+}
+```
+Usage examples:
+
+```php
+$posts = Post::with('visits')->get();
+
+foreach ($posts as $post){
+    $post->visits; // collection of visits
+}
+
+//OR
+
+$posts = Post::withCount('visits')->get();
+
+foreach ($posts as $post){
+    $post->visits_count; // int
+}
+```
+As you know, morphMany relationships are related to database,
+so somehow we need to access cached visits as well.
+this method also has been added to trait to access cached visits more easily.
+```php
+public function cachedVisits(?string $unique = null , ?string $collection = null , ?Model $visitor = null): Collection  
+```
+Usage examples:
+```php
+$visits = $post->cachedVisits(); //collection of visits
+// OR
+$visits = $post->cachedVisits('unique_id' , 'name of collection' , $user);
+
+
+$visits->count(); //int
+```
+
+### EyeVisitor Trait
+Add `EyeVisitor` to your visitor model. and the rest is similar to visitable trait.
+
+#### Observer
+```php
+public function deleted(Model $visitor)
+{
+    if ($visitor->isForceDeleting())
+        eye()->visitor($visitor)->visitable(false)->delete();
+}
+```
+
+#### Relations
+```php
+public function visits()
+{
+    return $this->morphMany(Visit::class, 'visitor');
+}
+```
+```php
+public function cachedVisits(?string $unique = null , ?string $collection = null , $visitable = false): Collection
+```
