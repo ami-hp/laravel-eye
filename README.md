@@ -107,54 +107,59 @@ $ php artisan migrate
 -------
 # Usage
 
-* [Complete Documentation](Docs.md)
+* ### [Complete Documentation](Docs.md)
 
 
-* [How To Record A Visit](#how-to-record-a-visit)
-  1. [Step 1: Set Visit Data From Start](#step-1-set-visit-data-from-start)
+* ### [How To Record A Visit](#how-to-record-a-visit)
+  #### 1. [Step 1: Set Visit Data From Start](#step-1-set-visit-data-from-start)
      * [Set Visitable Model](#set-visitable-model) 
      * [Set Visitor Model](#set-visitor-model) 
      * [Set Collection](#set-collection) 
-  2. [Stap 2: Choose Your Storing Method](#step-2-choose-your-storing-method)
+  #### 2. [Step 2: Choose Your Storing Method](#step-2-choose-your-storing-method)
      * [Store Visits in Database](#store-visits-in-database) 
      * [Store Visits in Cache](#store-visits-in-cache)
      * [Store Visits in Redis](#store-visits-in-redis)
-  3. [Step 3: Set Data via Storing Methods](#step-3-set-data-via-storing-methods)
+  #### 3. [Step 3: Set Data via Storing Methods](#step-3-set-data-via-storing-methods)
      * [Set Visitable Model](#set-visitable-model-1)
      * [Set Visitor Model](#set-visitor-model-1)
      * [Set Collection](#set-collection-1)
-  4. [Step 4: Define Conditions](#step-4-define-conditions)
-  5. [Step 5: Record the Visit](#step-5-record-the-visit)
-  6. [Additional Examples](#additional-examples)
+  #### 4. [Step 4: Define Conditions](#step-4-define-conditions)
+  #### 5. [Step 5: Record the Visit](#step-5-record-the-visit)
+  #### 6. [Additional Examples](#additional-examples)
 
 
     
-* [How To Retrieve From Each Storage](#how-to-retrieve-from-each-storage)
-  1. [Step 1: Selecting the Data You Need](#step-1-selecting-the-data-you-need)
+* ### [How To Retrieve From Each Storage](#how-to-retrieve-from-each-storage)
+  #### 1. [Step 1: Selecting the Data You Need](#step-1-selecting-the-data-you-need)
      * [Selecting Visitable or Url](#selecting-visitable-or-url) 
      * [Selecting Visitor](#selecting-visitor) 
      * [Selecting Collection](#selecting-collection) 
-  2. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+  #### 2. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
      * [Select Visits In a Period of time](#select-visits-in-a-period-of-time)
      * [Select Visits with a Unique Value](#select-visits-with-a-unique-value)
-  3. [Step 3: Fetch Data From Storage](#step-3-fetch-data-from-storage)
+  #### 3. [Step 3: Fetch Data From Storage](#step-3-fetch-data-from-storage)
 
 
-* [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
-  1. [Step 1: Select Storing Methods](#step-1-select-storing-methods)
-  2. [Step 2: Select Visit Models](#step-2-select-visit-models)
+* ### [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
+  #### 1. [Step 1: Select Storing Methods](#step-1-select-storing-methods)
+  #### 2. [Step 2: Select Visit Models](#step-2-select-visit-models)
      * [Select Visitable Model](#select-visitable-model)
      * [Select Visitor Model](#select-visitor-model)
      * [Select collection](#select-collection)
-  3. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+  #### 3. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
      * [Select A Period of Time](#select-a-period-of-time)
      * [Select Unique Values](#select-unique-values)
-  4. [Step 3: Retrieve Visits](#step-3-retrieve-visits)
+  #### 4. [Step 3: Retrieve Visits](#step-3-retrieve-visits)
 
 
-* [How To Delete Visits](#how-to-delete-visits)
+* ### [How To Delete Visits](#how-to-delete-visits)
   * [Delete All](#delete-all)
   * [Delete Selected Visits](#delete-selected-visits)
+  
+
+* ### [How To Use Traits]()
+  * [Visitable Trait]()
+  * [Visitor Trait]()
 -------
 ## How To Record A Visit
 You can record a Visit in various ways but first, you have to set your data to form a Visit model to be recorded.
@@ -592,4 +597,64 @@ eye()->via('cache')
      ->visitor($user , true)
      ->collection($name)
      ->delete();
+```
+
+----------
+## How To Use Traits
+You can also get visits data through you morphed models.
+
+### EyeVisitable Trait
+
+#### Observer
+Visitable observer will monitor your model's activity so, 
+when your model got (force) deleted visits
+gets deleted as well by this code:
+
+```php
+public function deleted(Model $visitable)
+{
+    if ($visitable->isForceDeleting())
+        eye($visitable)->delete();
+}
+```
+
+#### Relations
+In order to use eager loading you will need database relationships.
+```php
+public function visits()
+{
+    return $this->morphMany(Visit::class, 'visitable');
+}
+```
+Usage examples:
+
+```php
+$posts = Post::with('visits')->get();
+
+foreach ($posts as $post){
+    $post->visits; // collection of visits
+}
+
+//OR
+
+$posts = Post::withCount('visits')->get();
+
+foreach ($posts as $post){
+    $post->visits_count; // int
+}
+```
+As you know, morphMany relationships are related to database,
+so somehow we need to access cached visits as well.
+this method also has been added to trait to access cached visits more easily.
+```php
+public function cachedVisits(?string $unique = null , ?string $collection = null , ?Model $visitor = null): Collection  
+```
+Usage examples: 
+```php
+$visits = $post->cachedVisits(); //collection of visits
+// OR
+$visits = $post->cachedVisits('unique_id' , 'name of collection' , $user);
+
+
+$visits->count(); //int
 ```

@@ -18,9 +18,8 @@ class VisitableObserver
      */
     public function deleted(Model $visitable)
     {
-//        if ($this->removeViewsOnDelete($viewable)) {
+        if ($visitable->isForceDeleting())
             eye($visitable)->delete();
-//        }
     }
 
 }
