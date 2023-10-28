@@ -1,10 +1,20 @@
 # Laravel-Eye
+<p align="center">
+<img src="./docs/img/laravel-eye-banner.png" width="400" alt="laravel-eye Logo"/>
+</p>
+
+<p align="center">
+<a href="https://packagist.org/packages/ami-hp/laravel-eye"><img src="https://img.shields.io/packagist/dt/ami-hp/laravel-eye" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/ami-hp/laravel-eye"><img src="https://img.shields.io/packagist/v/ami-hp/laravel-eye" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/ami-hp/laravel-eye"><img src="https://img.shields.io/packagist/l/ami-hp/laravel-eye" alt="License"></a>
+</p>
+
 A Php >=7.2 Package for Laravel.
 
 This Package is a combination of two visit counter packages :
 - [shetabit/visitor](https://github.com/shetabit/visitor)
 - [cyrildewit/eloquent-viewable](https://github.com/cyrildewit/eloquent-viewable)
-    - and a little extra.
+- and a little extra.
 
 It Stores Each Visit based on user's **Cookie**.
 The Idea is being able to Cache Visits to reduce queries.
@@ -107,59 +117,59 @@ $ php artisan migrate
 -------
 # Usage
 
-* ### [Complete Documentation](Docs.md)
+* ### [Complete Documentation](./docs/Docs.md)
 
 
-* ### [How To Record A Visit](#how-to-record-a-visit)
-  #### 1. [Step 1: Set Visit Data From Start](#step-1-set-visit-data-from-start)
+* [How To Record A Visit](#how-to-record-a-visit)
+  * [Step 1: Set Visit Data From Start](#step-1-set-visit-data-from-start)
      * [Set Visitable Model](#set-visitable-model) 
      * [Set Visitor Model](#set-visitor-model) 
      * [Set Collection](#set-collection) 
-  #### 2. [Step 2: Choose Your Storing Method](#step-2-choose-your-storing-method)
+  * [Step 2: Choose Your Storing Method](#step-2-choose-your-storing-method)
      * [Store Visits in Database](#store-visits-in-database) 
      * [Store Visits in Cache](#store-visits-in-cache)
      * [Store Visits in Redis](#store-visits-in-redis)
-  #### 3. [Step 3: Set Data via Storing Methods](#step-3-set-data-via-storing-methods)
+  * [Step 3: Set Data via Storing Methods](#step-3-set-data-via-storing-methods)
      * [Set Visitable Model](#set-visitable-model-1)
      * [Set Visitor Model](#set-visitor-model-1)
      * [Set Collection](#set-collection-1)
-  #### 4. [Step 4: Define Conditions](#step-4-define-conditions)
-  #### 5. [Step 5: Record the Visit](#step-5-record-the-visit)
-  #### 6. [Additional Examples](#additional-examples)
+  * [Step 4: Define Conditions](#step-4-define-conditions)
+  * [Step 5: Record the Visit](#step-5-record-the-visit)
+  * [Additional Examples](#additional-examples)
 
 
     
-* ### [How To Retrieve From Each Storage](#how-to-retrieve-from-each-storage)
-  #### 1. [Step 1: Selecting the Data You Need](#step-1-selecting-the-data-you-need)
+* [How To Retrieve From Each Storage](#how-to-retrieve-from-each-storage)
+  * [Step 1: Selecting the Data You Need](#step-1-selecting-the-data-you-need)
      * [Selecting Visitable or Url](#selecting-visitable-or-url) 
      * [Selecting Visitor](#selecting-visitor) 
      * [Selecting Collection](#selecting-collection) 
-  #### 2. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+  * [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
      * [Select Visits In a Period of time](#select-visits-in-a-period-of-time)
      * [Select Visits with a Unique Value](#select-visits-with-a-unique-value)
-  #### 3. [Step 3: Fetch Data From Storage](#step-3-fetch-data-from-storage)
+  * [Step 3: Fetch Data From Storage](#step-3-fetch-data-from-storage)
 
 
-* ### [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
-  #### 1. [Step 1: Select Storing Methods](#step-1-select-storing-methods)
-  #### 2. [Step 2: Select Visit Models](#step-2-select-visit-models)
+* [How To Retrieve From Multiple Storages](#how-to-retrieve-from-multiple-storages)
+  * [Step 1: Select Storing Methods](#step-1-select-storing-methods)
+  * [Step 2: Select Visit Models](#step-2-select-visit-models)
      * [Select Visitable Model](#select-visitable-model)
      * [Select Visitor Model](#select-visitor-model)
      * [Select collection](#select-collection)
-  #### 3. [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
+  * [Step 2: Add More Conditions](#step-2-add-more-conditions-1)
      * [Select A Period of Time](#select-a-period-of-time)
      * [Select Unique Values](#select-unique-values)
-  #### 4. [Step 3: Retrieve Visits](#step-3-retrieve-visits)
+  * [Step 3: Retrieve Visits](#step-3-retrieve-visits)
 
 
-* ### [How To Delete Visits](#how-to-delete-visits)
+* [How To Delete Visits](#how-to-delete-visits)
   * [Delete All](#delete-all)
   * [Delete Selected Visits](#delete-selected-visits)
   
 
-* ### [How To Use Traits]()
-  * [Visitable Trait]()
-  * [Visitor Trait]()
+* [How To Use Traits](#how-to-use-traits)
+  * [EyeVisitable Trait](#eyevisitable-trait)
+  * [EyeVisitor Trait](#eyevisitor-trait)
 -------
 ## How To Record A Visit
 You can record a Visit in various ways but first, you have to set your data to form a Visit model to be recorded.
