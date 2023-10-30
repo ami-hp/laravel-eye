@@ -15,7 +15,7 @@ trait EyeVisitor
      *
      * @return void
      */
-    public static function bootVisitable()
+    public static function bootEyeVisitor()
     {
         static::observe(VisitorObserver::class);
     }
